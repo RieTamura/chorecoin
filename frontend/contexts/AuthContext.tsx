@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User } from '../types';
 import apiService from '../services/api';
 
+const AUTH_CHECK_TIMEOUT_MS = 5000;
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -27,14 +29,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token) {
         try {
           // タイムアウト処理を追加（5秒で中止）
-          const timeoutPromise = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Request timeout')), 5000)
-          );
+          let timeoutId: ReturnType<typeof setTimeout>;
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => reject(new Error('Request timeout')), AUTH_CHECK_TIMEOUT_MS);
+          });
           
-          const userData = await Promise.race([
-            apiService.getMe(),
-            timeoutPromise,
-          ]);
+          let userData;
+          try {
+            userData = await Promise.race([
+              apiService.getMe(),
+              timeoutPromise,
+            ]);
+          } finally {
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+            }
+          }
           
           setUser(userData);
         } catch (apiError) {
@@ -71,7 +81,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const userData = await apiService.getMe();
+      // タイムアウト処理を追加（5秒で中止）
+      let timeoutId: ReturnType<typeof setTimeout>;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Request timeout')), AUTH_CHECK_TIMEOUT_MS);
+      });
+      
+      let userData;
+      try {
+        userData = await Promise.race([
+          apiService.getMe(),
+          timeoutPromise,
+        ]);
+      } finally {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+      }
+      
       setUser(userData);
     } catch (error) {
       console.error('Refresh user failed:', error);

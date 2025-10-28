@@ -1,17 +1,19 @@
 # 🪙 Chore Coin - お手伝いコイン
 
+> お手伝いコインアプリ
+
 子どもが実施したお手伝いをポイント制で管理し、貯まったポイントでご褒美と交換できるモバイルアプリケーション。
 
 ## 📱 プロジェクト概要
 
-- **フロントエンド**: Expo + React Native + TypeScript
-- **バックエンド**: Hono + Cloudflare Workers
-- **データベース**: Cloudflare D1
-- **認証**: Google OAuth 2.0
+- **フロントエンド**：Expo + React Native + TypeScript
+- **バックエンド**：Hono + Cloudflare Workers
+- **データベース**：Cloudflare D1
+- **認証**：Google OAuth 2.0
 
 ## 🏗️ プロジェクト構造
 
-```
+```text
 chorecoin/
 ├── backend/          # Honoバックエンド (Cloudflare Workers)
 │   ├── src/
@@ -42,8 +44,8 @@ chorecoin/
 
 ### 前提条件
 
-- Node.js 18以上
-- npm または yarn
+- Node.js18以上
+- npmまたはyarn
 - Cloudflareアカウント
 - Google Cloud Platformアカウント（OAuth設定用）
 
@@ -79,7 +81,7 @@ npm install
 npm start
 ```
 
-### 3. Google OAuth 設定
+### 3. Google OAuth設定
 
 1. [Google Cloud Console](https://console.cloud.google.com/)でプロジェクトを作成
 2. OAuth 2.0クライアントIDを作成（iOS/Android用）
@@ -90,11 +92,11 @@ npm start
 
 ### ユーザー向け機能
 
-- ✅ Google アカウントでログイン
-- 🏠 ホーム画面: やることリスト、ポイント表示
+- ✅ Googleアカウントでログイン
+- 🏠 ホーム画面：やることリストとポイント表示
 - ✨ お手伝い完了でポイント獲得
-- 🎁 ご褒美画面: ポイントで交換
-- 📅 履歴画面: 獲得・使用履歴をカレンダー表示
+- 🎁 ご褒美画面：ポイントで交換
+- 📅 履歴画面：獲得・使用履歴をカレンダー表示
 
 ### 管理者（親）向け機能
 
@@ -103,12 +105,14 @@ npm start
 - 🔄 毎日繰り返すお手伝いの設定
 - 📊 子どもの進捗確認
 
-## 📖 API エンドポイント
+## 📖 APIエンドポイント
 
 ### 認証
+
 - `POST /api/auth/google` - Google認証
 
 ### お手伝い
+
 - `GET /api/chores` - 一覧取得
 - `POST /api/chores` - 登録
 - `PUT /api/chores/:id` - 編集
@@ -116,6 +120,7 @@ npm start
 - `POST /api/chores/:id/complete` - 完了
 
 ### ご褒美
+
 - `GET /api/rewards` - 一覧取得
 - `POST /api/rewards` - 登録
 - `PUT /api/rewards/:id` - 編集
@@ -123,10 +128,12 @@ npm start
 - `POST /api/rewards/:id/claim` - 交換
 
 ### 履歴
+
 - `GET /api/history` - 履歴取得
 - `GET /api/history/points` - 現在のポイント取得
 
 ### ユーザー
+
 - `GET /api/users/me` - ユーザー情報取得
 - `PATCH /api/users/me` - ユーザータイプ更新
 

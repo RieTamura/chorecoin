@@ -3,44 +3,51 @@
 ## 📊 現状分析
 
 ### テスト実行結果
+
 - **ユニットテスト**: 4ファイル、28テストケース ✅ PASS
-- **カバレッジ**: Statementsカバレッジ 0%（テストがモックに焦点）
+- **カバレッジ**: Statementsカバレッジは0%（テストがモックに焦点）
 
 ### 実装されたテストファイル
 
 **フロントエンド:**
+
 - `App.test.tsx` - 基本コンポーネントテスト
 - `AuthContext.test.ts` - 認証ロジック
 - `api.test.ts` - APIサービス
 - `components.test.tsx` - UIコンポーネント
-- `calendar.test.ts` - カレンダーユーティリティ (NEW)
-- `pages.test.ts` - ページ機能テスト (NEW)
-- `models.test.ts` - データモデルテスト (NEW)
+- `calendar.test.ts` - カレンダーユーティリティ（NEW）
+- `pages.test.ts` - ページ機能テスト（NEW）
+- `models.test.ts` - データモデルテスト（NEW）
 
 **バックエンド:**
+
 - `errors.test.ts` - エラーハンドリング
 - `endpoints.test.ts` - APIエンドポイント定義
-- `middleware.test.ts` - 認証・リクエスト処理 (NEW)
-- `routes.test.ts` - ルート実装テスト (NEW)
+- `middleware.test.ts` - 認証・リクエスト処理（NEW）
+- `routes.test.ts` - ルート実装テスト（NEW）
 
 ## 🎯 カバレッジ向上戦略
 
 ### フェーズ1: コアユーティリティのテスト化 ✅
+
 - 日付処理ユーティリティ
 - データ検証ロジック
 - 計算関数
 
 ### フェーズ2: コンポーネント統合テスト 📋
+
 - ページ遷移フロー
 - API呼び出しとUI更新
 - エラーハンドリング
 
 ### フェーズ3: バックエンド統合テスト 📋
+
 - 認証フロー全体
 - チョア管理フロー
 - ご褒美交換フロー
 
 ### フェーズ4: E2Eテスト導入 📋
+
 - ユーザーフロー全体（ログイン〜ご褒美交換）
 - ブラウザ自動化（Playwright/Cypress）
 
@@ -100,6 +107,7 @@
 ## 📚 ドキュメント整備
 
 ### 作成済み
+
 1. `TEST_SETUP.md` - テスト環境構築ガイド
 2. `INTEGRATION_TESTING_PLAN.md` - 統合テスト・E2E計画
 
@@ -141,24 +149,26 @@ npm run test:coverage
 ## ✨ 次のステップ
 
 1. **依存パッケージをインストール**
+
    ```bash
    cd backend && npm install
    cd web && npm install
    ```
 
 2. **テストを実行**
+
    ```bash
    npm run test
    npm run test:coverage
    ```
 
 3. **統合テスト基盤を構築**
-   - API Mock サーバー構築
+   - APIモックサーバー構築
    - テストDB環境セットアップ
    - 統合テストスイート実装
 
 4. **E2Eテール導入**
-   - Playwright または Cypress インストール
+   - Playwrightまたはcypressインストール
    - ユーザーシナリオテスト作成
    - CI/CDパイプライン統合
 

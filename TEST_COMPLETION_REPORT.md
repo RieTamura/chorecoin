@@ -8,8 +8,9 @@ Chore Coinアプリケーションのテスト環境構築を完了しました�
 
 ### Phase 1: ユニットテスト基盤 ✅ COMPLETED
 
-#### バックエンド (backend/)
-```
+#### バックエンド（backend/）
+
+```plaintext
 src/__tests__/
 ├── errors.test.ts         ✅ エラーコード・メッセージ検証
 ├── endpoints.test.ts      ✅ APIエンドポイント定義
@@ -18,13 +19,15 @@ src/__tests__/
 ```
 
 **実装内容:**
+
 - エラーハンドリング（ErrorCodes、ErrorMessages）
 - 認証フロー（トークン検証、認可）
 - CRUD操作のテスト
 - ステータスコード検証
 
-#### フロントエンド (web/)
-```
+#### フロントエンド（web/）
+
+```plaintext
 src/test/
 ├── setup.ts               ✅ テスト環境セットアップ
 ├── test-utils.tsx         ✅ テストユーティリティ
@@ -38,6 +41,7 @@ src/test/
 ```
 
 **実装内容:**
+
 - React Testing Libraryによるコンポーネントテスト
 - ユーザー操作シミュレーション（fireEvent）
 - ユーティリティ関数テスト
@@ -47,6 +51,7 @@ src/test/
 ### Phase 2: テスト環境設定 ✅ COMPLETED
 
 #### バックエンド設定
+
 ```javascript
 // package.json
 "scripts": {
@@ -64,6 +69,7 @@ src/test/
 ```
 
 #### フロントエンド設定
+
 ```javascript
 // package.json
 "scripts": {
@@ -82,7 +88,8 @@ src/test/
 ### Phase 3: テスト実行 ✅ COMPLETED
 
 **テスト実行結果:**
-```
+
+```plaintext
 ✅ Test Files      4 passed (4)
 ✅ Tests          28 passed (28)
 ✅ Duration       2.39s
@@ -93,8 +100,9 @@ src/test/
 ```
 
 **カバレッジレポート:**
-- All files: 0% (モック/ユニットテストに焦点)
-- 実装テスト: 計14ファイル、28テストケース
+
+- All files: 0%（モック/ユニットテストに焦点）
+- 実装テスト：計14ファイル、28テストケース
 
 ### Phase 4: ドキュメント整備 ✅ COMPLETED
 
@@ -187,24 +195,27 @@ npm run test -- --grep "認証"
 
 ## 🎯 次のマイルストーン
 
-### 短期 (1-2週間)
+### 短期（1～2週間）
+
 - [ ] 依存パッケージのインストール
 - [ ] 全テストの実行確認
 - [ ] カバレッジレポート生成
 
-### 中期 (2-4週間)
+### 中期（2～4週間）
+
 - [ ] 統合テストスイート構築
 - [ ] テストDB環境セットアップ
 - [ ] CI/CDパイプライン統合
 
-### 長期 (1-2ヶ月)
-- [ ] E2Eテスト導入 (Playwright)
-- [ ] カバレッジ目標達成 (80%+)
+### 長期（1～2か月）
+
+- [ ] E2Eテスト導入（Playwright）
+- [ ] カバレッジ目標達成（80%+）
 - [ ] 本番デプロイ
 
 ## 📁 ファイル構成
 
-```
+```plaintext
 chorecoin/
 ├── TEST_SETUP.md                      # テスト環境ガイド
 ├── INTEGRATION_TESTING_PLAN.md         # 統合テスト計画
@@ -239,8 +250,8 @@ chorecoin/
 1. **テストファイル命名**: `*.test.ts`、`*.test.tsx`
 2. **テスト構造**: Arrange → Act → Assert
 3. **非同期テスト**: async/await + waitFor()
-4. **UIテスト**: getByRole を優先
-5. **モック**: vi.mock() で外部依存を隔離
+4. **UIテスト**: getByRoleを優先
+5. **モック**: vi.mock()で外部依存を隔離
 
 ## 🔗 関連リソース
 
@@ -264,5 +275,5 @@ chorecoin/
 ---
 
 **最終更新**: 2025年10月28日  
-**ステータス**: ✅ Phase 1-4 完了、Phase 5以降は継続開発予定
+**ステータス**: ✅ Phase 1-4完了、Phase 5以降は継続開発予定
 

@@ -2,7 +2,7 @@
 
 ## エラー内容
 
-```
+```plaintext
 モジュール 'vitest' またはそれに対応する型宣言が見つかりません。
 ```
 
@@ -20,6 +20,7 @@ npm install
 ```
 
 このコマンドで以下のパッケージがインストールされます：
+
 - `vitest`: テストフレームワーク
 - `@vitest/ui`: テストUI
 - `@vitest/coverage-v8`: カバレッジ
@@ -46,7 +47,7 @@ cd web
 npm run type-check
 ```
 
-または VS Code を再起動してください。
+またはVS Codeを再起動してください。
 
 ### ステップ4: テスト実行確認
 
@@ -105,6 +106,7 @@ npm run test
 ### 問題: npm install後もエラーが続く
 
 **解決策:**
+
 ```bash
 # node_modules をクリア
 rm -r node_modules package-lock.json
@@ -118,12 +120,14 @@ npm install
 ### 問題: TypeScript サーバーがエラーを表示
 
 **解決策:**
-1. VS Code の Command Palette を開く (`Ctrl+Shift+P`)
+
+1. VS Codeのコマンドパレットを開く（Ctrl+Shift+P）
 2. `TypeScript: Restart TS Server` を実行
 
 ### 問題: テスト実行時に「モジュールが見つからない」
 
 **解決策:**
+
 ```bash
 npm run type-check
 ```
@@ -139,8 +143,9 @@ cd backend
 npm run test -- --version
 ```
 
-出力例:
-```
+出力例：
+
+```plaintext
 vitest 1.1.0
 ```
 
@@ -151,8 +156,9 @@ cd web
 npm run test -- --version
 ```
 
-出力例:
-```
+出力例：
+
+```plaintext
 vitest 1.0.4
 ```
 

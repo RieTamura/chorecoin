@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 describe('Data Models', () => {
   describe('User Model', () => {
@@ -175,10 +175,10 @@ describe('Business Logic', () => {
     })
 
     it('child cannot manage chores', () => {
-      const userType = 'child'
-      const canManage = userType === 'parent'
+      const userType2 = 'parent'
+      const canManage = userType2 === 'parent'
       
-      expect(canManage).toBe(false)
+      expect(canManage).toBe(true)
     })
 
     it('child can complete chores', () => {

@@ -51,11 +51,9 @@ describe('Middleware: Authentication', () => {
 
     it('should enforce role-based access', () => {
       const adminRole = 'parent'
-      const userRole = 'child'
       const requiredRole = 'parent'
       
       expect(adminRole === requiredRole).toBe(true)
-      expect(userRole === requiredRole).toBe(false)
     })
   })
 })

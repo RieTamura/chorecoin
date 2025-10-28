@@ -37,11 +37,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           let userData;
           try {
             userData = await Promise.race([
-        } catch (apiError) {
-          console.error('API call failed:', apiError);
-          await AsyncStorage.removeItem('authToken');
-          setUser(null);
-        }
+              apiService.getMe(),
+              timeoutPromise,
+            ]);
+          } finally {
             if (timeoutId) {
               clearTimeout(timeoutId);
             }

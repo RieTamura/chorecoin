@@ -1,4 +1,10 @@
 import { describe, it, expect } from 'vitest'
+import {
+  generateCalendarMonth,
+  formatDate,
+  getPreviousMonth,
+  getNextMonth,
+} from '../utils/calendar'
 
 describe('Calendar Utilities', () => {
   describe('Date Handling', () => {
@@ -13,11 +19,10 @@ describe('Calendar Utilities', () => {
       expect(date).toMatch(regex)
     })
 
-    it('should calculate days in month', () => {
-      const daysInJan = 31
-      const daysInFeb = 28
-      expect(daysInJan).toBe(31)
-      expect(daysInFeb).toBe(28)
+    it('should format date correctly', () => {
+      const date = new Date(2025, 0, 15) // January 15, 2025
+      const formatted = formatDate(date)
+      expect(formatted).toBe('2025-01-15')
     })
 
     it('should handle leap year', () => {
@@ -28,44 +33,94 @@ describe('Calendar Utilities', () => {
   })
 
   describe('Month Navigation', () => {
-    it('should move to next month', () => {
-      const currentMonth = 1 // January
-      const nextMonth = currentMonth + 1
-      expect(nextMonth).toBe(2)
+    it('should move to next month - normal case', () => {
+      const [nextYear, nextMonth] = getNextMonth(2025, 0) // January
+      expect(nextYear).toBe(2025)
+      expect(nextMonth).toBe(1) // February
     })
 
-    it('should move to previous month', () => {
-      const currentMonth = 3 // March
-      const prevMonth = currentMonth - 1
-      expect(prevMonth).toBe(2)
-    })
-
-    it('should wrap year when changing months', () => {
-      const year = 2025
-      const month = 12
-      const nextMonth = month === 12 ? 1 : month + 1
-      const nextYear = month === 12 ? year + 1 : year
-      
-      expect(nextMonth).toBe(1)
+    it('should move to next month - December to January with year rollover', () => {
+      const [nextYear, nextMonth] = getNextMonth(2025, 11) // December
       expect(nextYear).toBe(2026)
+      expect(nextMonth).toBe(0) // January
+    })
+
+    it('should move to previous month - normal case', () => {
+      const [prevYear, prevMonth] = getPreviousMonth(2025, 2) // March
+      expect(prevYear).toBe(2025)
+      expect(prevMonth).toBe(1) // February
+    })
+
+    it('should move to previous month - January to December with year rollback', () => {
+      const [prevYear, prevMonth] = getPreviousMonth(2025, 0) // January
+      expect(prevYear).toBe(2024)
+      expect(prevMonth).toBe(11) // December
+    })
+
+    it('should handle multiple month transitions', () => {
+      let year: number = 2025
+      let month: number = 10 // November
+
+      // Move forward 4 months (Nov → Dec → Jan → Feb → Mar)
+      const next1 = getNextMonth(year, month)
+      year = next1[0]
+      month = next1[1]
+      expect([year, month]).toEqual([2025, 11])
+
+      const next2 = getNextMonth(year, month)
+      year = next2[0]
+      month = next2[1]
+      expect([year, month]).toEqual([2026, 0])
+
+      const next3 = getNextMonth(year, month)
+      year = next3[0]
+      month = next3[1]
+      expect([year, month]).toEqual([2026, 1])
+
+      const next4 = getNextMonth(year, month)
+      year = next4[0]
+      month = next4[1]
+      expect([year, month]).toEqual([2026, 2])
     })
   })
 
   describe('Calendar Grid', () => {
     it('should create calendar grid for month', () => {
-      const weeks = 5
-      const days = 7
-      const totalCells = weeks * days
-      
-      expect(totalCells).toBe(35)
+      const calendar = generateCalendarMonth(2025, 0) // January 2025
+      expect(calendar).toHaveLength(42) // 6 weeks * 7 days
     })
 
-    it('should fill calendar with dates', () => {
-      const daysInMonth = 31
-      const firstDayOfWeek = 3 // Wednesday
+    it('should fill calendar with dates from current month', () => {
+      const calendar = generateCalendarMonth(2025, 0) // January 2025
+      const currentMonthDays = calendar.filter(day => day.currentMonth)
       
-      expect(daysInMonth).toBeGreaterThan(0)
-      expect(firstDayOfWeek).toBeLessThan(7)
+      // January 2025 has 31 days
+      expect(currentMonthDays.length).toBe(31)
+      expect(currentMonthDays.some(day => day.date === 1)).toBe(true)
+      expect(currentMonthDays.some(day => day.date === 31)).toBe(true)
+    })
+
+    it('should include previous and next month dates', () => {
+      const calendar = generateCalendarMonth(2025, 0) // January 2025
+      const prevMonthDays = calendar.filter(day => !day.currentMonth && day.date > 20) // Likely from Dec
+      const nextMonthDays = calendar.filter(day => !day.currentMonth && day.date < 10)
+      
+      // January 1, 2025 is a Wednesday (day 3 of the week)
+      // So we should have 2 days from previous month
+      expect(prevMonthDays.length).toBeGreaterThan(0)
+      expect(nextMonthDays.length).toBeGreaterThan(0)
+    })
+
+    it('should handle month boundaries correctly for February leap year', () => {
+      const calendar = generateCalendarMonth(2024, 1) // February 2024 (leap year)
+      const currentMonthDays = calendar.filter(day => day.currentMonth)
+      expect(currentMonthDays.length).toBe(29)
+    })
+
+    it('should handle month boundaries correctly for February non-leap year', () => {
+      const calendar = generateCalendarMonth(2025, 1) // February 2025 (non-leap year)
+      const currentMonthDays = calendar.filter(day => day.currentMonth)
+      expect(currentMonthDays.length).toBe(28)
     })
   })
 })

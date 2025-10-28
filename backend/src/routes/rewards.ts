@@ -44,8 +44,9 @@ rewards.post('/', async (c) => {
     const body = await c.req.json();
     const { name, points } = body;
 
-    // Validation
-    if (!name || name.trim() === '') {
+    // Validation - trim and validate name
+    const trimmedName = typeof name === 'string' ? name.trim() : '';
+    if (!trimmedName) {
       throw new AppError(
         400,
         ErrorCodes.MISSING_FIELD,
@@ -73,7 +74,7 @@ rewards.post('/', async (c) => {
     
     await c.env.DB.prepare(
       'INSERT INTO rewards (id, user_id, name, points) VALUES (?, ?, ?, ?)'
-    ).bind(rewardId, userId, name, points).run();
+    ).bind(rewardId, userId, trimmedName, points).run();
 
     const reward = await c.env.DB.prepare(
       'SELECT * FROM rewards WHERE id = ?'
@@ -101,8 +102,9 @@ rewards.put('/:id', async (c) => {
     const body = await c.req.json();
     const { name, points } = body;
 
-    // Validation
-    if (!name || name.trim() === '') {
+    // Validation - trim and validate name
+    const trimmedName = typeof name === 'string' ? name.trim() : '';
+    if (!trimmedName) {
       throw new AppError(
         400,
         ErrorCodes.MISSING_FIELD,
@@ -141,7 +143,7 @@ rewards.put('/:id', async (c) => {
 
     await c.env.DB.prepare(
       'UPDATE rewards SET name = ?, points = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
-    ).bind(name, points, rewardId).run();
+    ).bind(trimmedName, points, rewardId).run();
 
     const reward = await c.env.DB.prepare(
       'SELECT * FROM rewards WHERE id = ?'
@@ -225,7 +227,20 @@ rewards.post('/:id/claim', async (c) => {
       FROM history WHERE user_id = ?`
     ).bind(userId).first();
 
-    const currentPoints = (result?.total as number) || 0;
+    // Safely convert result.total to number with runtime checks
+    let currentPoints = 0;
+    if (result && typeof result.total === 'number') {
+      currentPoints = result.total;
+    } else if (result?.total !== undefined && result.total !== null) {
+      // Attempt to coerce to number if it's a string or other type
+      const coercedValue = Number(result.total);
+      if (!isNaN(coercedValue)) {
+        currentPoints = coercedValue;
+      } else {
+        console.warn('Warning: result.total could not be coerced to a valid number:', result.total);
+        currentPoints = 0;
+      }
+    }
 
     if (currentPoints < reward.points) {
       throw new AppError(

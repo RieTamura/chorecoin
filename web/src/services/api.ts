@@ -45,7 +45,8 @@ apiClient.interceptors.response.use(
 
     // ステータスコードに基づくデフォルトメッセージ
     let message = 'エラーが発生しました。'
-    switch (error.response?.status) {
+    const statusCode = error.response?.status || 500
+    switch (statusCode) {
       case 400:
         message = '不正なリクエストです。'
         break
@@ -60,7 +61,9 @@ apiClient.interceptors.response.use(
         break
     }
 
-    return Promise.reject(new Error(message))
+    const defaultError = new Error(message)
+    ;(defaultError as any).statusCode = statusCode
+    return Promise.reject(defaultError)
   }
 )
 

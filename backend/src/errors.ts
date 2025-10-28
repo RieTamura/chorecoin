@@ -82,9 +82,16 @@ export function formatErrorResponse(error: unknown): ApiError {
   }
 
   if (error instanceof Error) {
+    // 本番環境ではジェネリックなエラーメッセージを返す
+    // 開発環境のみ実際のエラーメッセージを含める
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    const errorMessage = isDevelopment
+      ? `${ErrorMessages[ErrorCodes.INTERNAL_SERVER_ERROR]} (Details: ${error.message})`
+      : ErrorMessages[ErrorCodes.INTERNAL_SERVER_ERROR]
+
     return {
       error: ErrorCodes.INTERNAL_SERVER_ERROR,
-      message: error.message,
+      message: errorMessage,
       statusCode: 500,
       code: ErrorCodes.INTERNAL_SERVER_ERROR,
     }
@@ -92,7 +99,7 @@ export function formatErrorResponse(error: unknown): ApiError {
 
   return {
     error: ErrorCodes.INTERNAL_SERVER_ERROR,
-    message: 'Unknown error occurred',
+    message: ErrorMessages[ErrorCodes.INTERNAL_SERVER_ERROR],
     statusCode: 500,
     code: ErrorCodes.INTERNAL_SERVER_ERROR,
   }

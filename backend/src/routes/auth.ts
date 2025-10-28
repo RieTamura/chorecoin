@@ -38,7 +38,10 @@ auth.post('/google', async (c) => {
       });
       payload = result.payload;
     } catch (verifyError) {
-      console.error('Google token verification failed:', verifyError);
+      const errorMessage = verifyError instanceof Error 
+        ? verifyError.message 
+        : 'Google token verification failed';
+      console.error('Google token verification failed:', errorMessage);
       throw new AppError(
         401,
         ErrorCodes.INVALID_TOKEN,

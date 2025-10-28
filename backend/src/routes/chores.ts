@@ -217,20 +217,23 @@ chores.post('/:id/complete', async (c) => {
       );
     }
 
-    // Add to history
+    // Use batch for atomic operations
     const historyId = generateUUID();
-    await c.env.DB.prepare(
-      'INSERT INTO history (id, user_id, type, name, points) VALUES (?, ?, ?, ?, ?)'
-    ).bind(historyId, userId, 'earn', chore.name, chore.points).run();
+    const statements = [
+      c.env.DB.prepare(
+        'INSERT INTO history (id, user_id, type, name, points) VALUES (?, ?, ?, ?, ?)'
+      ).bind(historyId, userId, 'earn', chore.name, chore.points)
+    ];
 
-    // If not recurring, delete the chore
     if (chore.recurring === 0) {
-      await c.env.DB.prepare(
-        'DELETE FROM chores WHERE id = ?'
-      ).bind(choreId).run();
+      statements.push(
+        c.env.DB.prepare('DELETE FROM chores WHERE id = ?').bind(choreId)
+      );
     }
 
-    // Calculate total points
+    await c.env.DB.batch(statements);
+
+    // Calculate total points after batch completes
     const totalPoints = await c.env.DB.prepare(
       `SELECT 
         COALESCE(SUM(CASE WHEN type = 'earn' THEN points ELSE 0 END), 0) -

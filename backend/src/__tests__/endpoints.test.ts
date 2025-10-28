@@ -26,14 +26,11 @@ describe('API Endpoints', () => {
   })
 
   describe('Chores Endpoints', () => {
-    it('should have GET /api/chores endpoint', () => {
-      const endpoint = '/api/chores'
-      expect(endpoint).toBe('/api/chores')
-    })
-
-    it('should have POST /api/chores endpoint', () => {
-      const endpoint = '/api/chores'
-      expect(endpoint).toBe('/api/chores')
+    it('should have GET and POST /api/chores endpoints', () => {
+      const getEndpoint = 'GET /api/chores'
+      const postEndpoint = 'POST /api/chores'
+      expect(getEndpoint).toBe('GET /api/chores')
+      expect(postEndpoint).toBe('POST /api/chores')
     })
 
     it('should have PUT /api/chores/:id endpoint', () => {
@@ -53,14 +50,11 @@ describe('API Endpoints', () => {
   })
 
   describe('Rewards Endpoints', () => {
-    it('should have GET /api/rewards endpoint', () => {
-      const endpoint = '/api/rewards'
-      expect(endpoint).toBe('/api/rewards')
-    })
-
-    it('should have POST /api/rewards endpoint', () => {
-      const endpoint = '/api/rewards'
-      expect(endpoint).toBe('/api/rewards')
+    it('should have GET and POST /api/rewards endpoints', () => {
+      const getEndpoint = 'GET /api/rewards'
+      const postEndpoint = 'POST /api/rewards'
+      expect(getEndpoint).toBe('GET /api/rewards')
+      expect(postEndpoint).toBe('POST /api/rewards')
     })
 
     it('should have POST /api/rewards/:id/claim endpoint', () => {

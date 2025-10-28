@@ -1,0 +1,15 @@
+.env.local
+.env.*.local
+node_modules/
+dist/
+build/
+coverage/
+.DS_Store
+*.log
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace

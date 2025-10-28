@@ -32,7 +32,35 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('authToken')
       window.location.href = '/login'
     }
-    return Promise.reject(error)
+
+    // エラーメッセージを整形
+    const errorData = error.response?.data
+    if (errorData && errorData.message) {
+      // バックエンドからのエラーメッセージを使用
+      const customError = new Error(errorData.message)
+      ;(customError as any).code = errorData.code
+      ;(customError as any).statusCode = error.response?.status
+      return Promise.reject(customError)
+    }
+
+    // ステータスコードに基づくデフォルトメッセージ
+    let message = 'エラーが発生しました。'
+    switch (error.response?.status) {
+      case 400:
+        message = '不正なリクエストです。'
+        break
+      case 404:
+        message = 'リソースが見つかりません。'
+        break
+      case 500:
+        message = 'サーバーエラーが発生しました。'
+        break
+      case 503:
+        message = 'サーバーが利用できません。'
+        break
+    }
+
+    return Promise.reject(new Error(message))
   }
 )
 

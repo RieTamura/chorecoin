@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import * as jose from 'jose';
 import { Env, GoogleTokenPayload, User } from '../types';
-import { v4 as uuidv4 } from 'uuid';
+import { AppError, ErrorCodes, ErrorMessages } from '../errors';
 
 const auth = new Hono<{ Bindings: Env }>();
 
@@ -16,21 +16,46 @@ function generateUUID(): string {
 
 auth.post('/google', async (c) => {
   try {
-    const { idToken } = await c.req.json();
+    const body = await c.req.json();
+    const { idToken } = body;
 
     if (!idToken) {
-      return c.json({ error: 'ID token is required' }, 400);
+      throw new AppError(
+        400,
+        ErrorCodes.MISSING_FIELD,
+        'idToken は必須です。'
+      );
     }
 
     // Verify Google ID token
     const JWKS = jose.createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
     
-    const { payload } = await jose.jwtVerify(idToken, JWKS, {
-      issuer: ['https://accounts.google.com', 'accounts.google.com'],
-      audience: c.env.GOOGLE_CLIENT_ID,
-    });
+    let payload: jose.JWTPayload;
+    try {
+      const result = await jose.jwtVerify(idToken, JWKS, {
+        issuer: ['https://accounts.google.com', 'accounts.google.com'],
+        audience: c.env.GOOGLE_CLIENT_ID,
+      });
+      payload = result.payload;
+    } catch (verifyError) {
+      console.error('Google token verification failed:', verifyError);
+      throw new AppError(
+        401,
+        ErrorCodes.INVALID_TOKEN,
+        'Google ID トークンが無効です。'
+      );
+    }
 
     const googlePayload = payload as unknown as GoogleTokenPayload;
+
+    // Validate Google payload
+    if (!googlePayload.sub || !googlePayload.email) {
+      throw new AppError(
+        400,
+        ErrorCodes.INVALID_INPUT,
+        'Google トークンに必要な情報が含まれていません。'
+      );
+    }
 
     // Check if user exists
     const existingUser = await c.env.DB.prepare(
@@ -83,8 +108,15 @@ auth.post('/google', async (c) => {
       },
     });
   } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
     console.error('Authentication error:', error);
-    return c.json({ error: 'Authentication failed' }, 401);
+    throw new AppError(
+      500,
+      ErrorCodes.INTERNAL_SERVER_ERROR,
+      ErrorMessages[ErrorCodes.INTERNAL_SERVER_ERROR]
+    );
   }
 });
 

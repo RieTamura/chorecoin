@@ -1,6 +1,6 @@
 # Chore Coin Frontend
 
-Expo + React Native + TypeScript で構築されたお手伝いポイント管理アプリのフロントエンド。
+Expo+React Native+TypeScriptで構築されたお手伝いポイント管理アプリのフロントエンド。
 
 ## セットアップ
 
@@ -70,7 +70,7 @@ eas build --platform android
 
 ## ディレクトリ構造
 
-```
+```text
 frontend/
 ├── app/              # 画面（Expo Router）
 ├── components/       # 再利用可能なコンポーネント
@@ -84,8 +84,8 @@ frontend/
 
 ### バックエンドへの接続
 
-- ローカル開発時は `app.json` の `apiUrl` を `http://localhost:8787` に設定
-- 本番環境では Cloudflare Workers のURLに変更
+- ローカル開発時は`app.json`の`apiUrl`を`http://localhost:8787`に設定
+- 本番環境ではCloudflare WorkersのURLに変更
 
 ### デバッグ
 

@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { Env } from './types';
+import { AppError, formatErrorResponse, ErrorCodes, ErrorMessages } from './errors';
 import auth from './routes/auth';
 import chores from './routes/chores';
 import rewards from './routes/rewards';
@@ -31,13 +32,26 @@ app.route('/api/users', users);
 
 // 404 handler
 app.notFound((c) => {
-  return c.json({ error: 'Not Found' }, 404);
+  const error = new AppError(
+    404,
+    ErrorCodes.NOT_FOUND,
+    ErrorMessages[ErrorCodes.NOT_FOUND]
+  );
+  const response = formatErrorResponse(error);
+  return c.json(response, 404);
 });
 
 // Error handler
 app.onError((err, c) => {
   console.error('Error:', err);
-  return c.json({ error: 'Internal Server Error' }, 500);
+
+  if (err instanceof AppError) {
+    const response = formatErrorResponse(err);
+    return c.json(response, err.statusCode as any);
+  }
+
+  const errorResponse = formatErrorResponse(err);
+  return c.json(errorResponse, 500);
 });
 
 export default app;

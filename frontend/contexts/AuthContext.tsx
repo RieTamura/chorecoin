@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token) {
         try {
           // タイムアウト処理を追加（5秒で中止）
-          let timeoutId: ReturnType<typeof setTimeout>;
+          let timeoutId: ReturnType<typeof setTimeout> | null = null;
           const timeoutPromise = new Promise<never>((_, reject) => {
             timeoutId = setTimeout(() => reject(new Error('Request timeout')), AUTH_CHECK_TIMEOUT_MS);
           });
@@ -81,8 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
+      const refreshUser = async () => {
+    try {
       // タイムアウト処理を追加（5秒で中止）
-      let timeoutId: ReturnType<typeof setTimeout>;
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
       const timeoutPromise = new Promise<never>((_, reject) => {
         timeoutId = setTimeout(() => reject(new Error('Request timeout')), AUTH_CHECK_TIMEOUT_MS);
       });
@@ -100,6 +102,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       setUser(userData);
+    } catch (error) {
+      console.error('Refresh user failed:', error);
+      logout();
+    }
+  };
     } catch (error) {
       console.error('Refresh user failed:', error);
     }

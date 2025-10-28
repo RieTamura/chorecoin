@@ -30,11 +30,11 @@
   - Expoアプリ側でGoogle SDKを使用してトークンを取得
   - Honoバックエンドでトークンの署名を検証
   - ユーザー情報をCloudflare D1に保存
-  - JWT トークンを発行し、以後のAPI通信で使用
+  - JWTトークンを発行し、以後のAPI通信で使用
 
 - **ユーザータイプ**
-  - 親（管理者）: お手伝いの設定、ご褒美の設定、子どもの進捗確認
-  - 子ども: お手伝いの完了報告、ご褒美の交換
+  - 親（管理者）：お手伝いの設定、ご褒美の設定、子どもの進捗確認
+  - 子ども：お手伝いの完了報告、ご褒美の交換
 
 ---
 
@@ -90,7 +90,7 @@
 ### 4.1 セキュリティ
 
 - Google IDトークンの署名検証を実装
-- JWT トークンは十分な有効期限を設定（例：1時間）
+- JWTトークンは十分な有効期限を設定（例：1時間）
 - リフレッシュトークンで更新機能を実装
 - CORS設定をExpoアプリのみに限定
 - 環境変数にシークレット情報を保管（Cloudflare環境変数）
@@ -107,7 +107,7 @@
 
 ### 4.4 可用性
 
-- 24/7 稼働を想定
+- 24時間365日稼働を想定
 - エラーハンドリングとフォールバック機能
 
 ---
@@ -115,9 +115,10 @@
 ## 5. データベーススキーマ（概要）
 
 ### テーブル: users
-```
+
+```sql
 - id: UUID (Primary Key)
-- google_id: String (Google 固有ID)
+- google_id: String (Google固有ID)
 - email: String
 - name: String
 - created_at: DateTime
@@ -125,18 +126,20 @@
 ```
 
 ### テーブル: chores
-```
+
+```sql
 - id: UUID (Primary Key)
 - user_id: UUID (Foreign Key → users)
 - name: String
 - points: Integer
-- recurring: Boolean (毎日 = true, その日だけ = false)
+- recurring: Boolean (毎日 = true、その日だけ = false)
 - created_at: DateTime
 - updated_at: DateTime
 ```
 
 ### テーブル: rewards
-```
+
+```sql
 - id: UUID (Primary Key)
 - user_id: UUID (Foreign Key → users)
 - name: String
@@ -146,23 +149,26 @@
 ```
 
 ### テーブル: history
-```
+
+```sql
 - id: UUID (Primary Key)
 - user_id: UUID (Foreign Key → users)
-- type: String (earn = ポイント獲得, claim = ご褒美交換)
-- name: String (お手伝い名 or ご褒美名)
+- type: String (earn = ポイント獲得、claim = ご褒美交換)
+- name: String (お手伝い名またはご褒美名)
 - points: Integer
 - created_at: DateTime
 ```
 
 ---
 
-## 6. API エンドポイント（概要）
+## 6. APIエンドポイント（概要）
 
 ### 認証
-- `POST /api/auth/google` - Google トークンを検証し、JWT を発行
+
+- `POST /api/auth/google` - Googleトークンを検証し、JWTを発行
 
 ### お手伝い
+
 - `POST /api/chores` - お手伝いを登録
 - `GET /api/chores` - お手伝い一覧を取得
 - `PUT /api/chores/:id` - お手伝いを編集
@@ -170,6 +176,7 @@
 - `POST /api/chores/:id/complete` - お手伝いを完了
 
 ### ご褒美
+
 - `POST /api/rewards` - ご褒美を登録
 - `GET /api/rewards` - ご褒美一覧を取得
 - `PUT /api/rewards/:id` - ご褒美を編集
@@ -177,9 +184,11 @@
 - `POST /api/rewards/:id/claim` - ご褒美を交換
 
 ### 履歴
+
 - `GET /api/history` - 履歴を取得（日付でフィルタ可能）
 
 ### ユーザー
+
 - `GET /api/users/me` - 現在のユーザー情報を取得
 
 ---
@@ -187,25 +196,30 @@
 ## 7. 画面・UI要件
 
 ### 7.1 ログイン画面
-- Google ログインボタン
+
+- Googleログインボタン
 - 初回登録フロー
 
 ### 7.2 ホーム画面
+
 - 現在のポイント数表示
 - やることリスト（毎日のお手伝い、その日だけのお手伝い）
 - 完了ボタン
 
 ### 7.3 ご褒美画面
+
 - ご褒美一覧
 - 交換可能な状態を視覚的に表示（ポイント不足時はボタン非表示）
 - 交換ボタン
 
 ### 7.4 履歴（カレンダー）画面
+
 - 月ごとのカレンダー表示
 - 各日付に獲得・使用ポイントを表示
 - 前月・翌月ボタン
 
 ### 7.5 管理画面（親用）
+
 - お手伝い、ご褒美の登録・編集・削除
 - 子どもの進捗確認
 
@@ -229,14 +243,14 @@
 
 - iOS 13以上対応
 - インターネット接続が必須
-- Google アカウントでのログインが必須
+- Googleアカウントでのログインが必須
 - 複数ユーザー対応（各ユーザーは独立したデータ）
 
 ---
 
 ## 10. 今後の拡張可能性
 
-- Android アプリのリリース
+- Androidアプリのリリース
 - 複数の子ども管理（親が複数の子どもを管理）
 - データのエクスポート機能
 - 通知機能（ご褒美交換時のアラートなど）

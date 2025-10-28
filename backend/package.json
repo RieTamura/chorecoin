@@ -8,7 +8,11 @@
     "deploy": "wrangler deploy",
     "db:create": "wrangler d1 create chorecoin-db",
     "db:migrate": "wrangler d1 migrations apply chorecoin-db --local",
-    "db:migrate:prod": "wrangler d1 migrations apply chorecoin-db --remote"
+    "db:migrate:prod": "wrangler d1 migrations apply chorecoin-db --remote",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [
     "hono",
@@ -23,7 +27,11 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240117.0",
-  "wrangler": "^4.0.0",
-    "typescript": "^5.3.3"
+    "@types/node": "^20.10.0",
+    "@vitest/ui": "^1.1.0",
+    "@vitest/coverage-v8": "^1.1.0",
+    "wrangler": "^4.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
   }
 }

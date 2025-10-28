@@ -149,10 +149,10 @@ const apiService = {
     if (startDate) params.append('startDate', startDate)
     if (endDate) params.append('endDate', endDate)
 
-    const response = await apiClient.get<HistoryEntry[]>(
+    const response = await apiClient.get<{ history: HistoryEntry[] }>(
       `/api/history?${params.toString()}`
     )
-    return response.data
+    return response.data.history
   },
 
   async getPoints(): Promise<PointsData> {

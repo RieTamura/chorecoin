@@ -16,6 +16,18 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<'home' | 'rewards' | 'history' | 'manage'>('home')
   const [isCompletingId, setIsCompletingId] = useState<string | null>(null)
   const [isClaimingId, setIsClaimingId] = useState<string | null>(null)
+  const [isDeletingId, setIsDeletingId] = useState<string | null>(null)
+  
+  // 管理画面関連
+  const [showAddChoreForm, setShowAddChoreForm] = useState(false)
+  const [showAddRewardForm, setShowAddRewardForm] = useState(false)
+  const [editingChoreId, setEditingChoreId] = useState<string | null>(null)
+  const [editingRewardId, setEditingRewardId] = useState<string | null>(null)
+  const [newChore, setNewChore] = useState({ name: '', points: 10, recurring: false })
+  const [newReward, setNewReward] = useState({ name: '', points: 100 })
+  const [isAddingChore, setIsAddingChore] = useState(false)
+  const [isAddingReward, setIsAddingReward] = useState(false)
+  const [isSwitchingUserType, setIsSwitchingUserType] = useState(false)
   
   // カレンダー関連
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -140,6 +152,159 @@ export default function HomePage() {
   const handleLogout = async () => {
     await logout()
     window.location.href = '/login'
+  }
+
+  const handleAddChore = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setIsAddingChore(true)
+      const createdChore = await apiService.createChore(
+        newChore.name,
+        newChore.points,
+        newChore.recurring
+      )
+      setChores([...chores, createdChore])
+      setNewChore({ name: '', points: 10, recurring: false })
+      setShowAddChoreForm(false)
+      setError(null)
+    } catch (err) {
+      console.error('Failed to add chore:', err)
+      setError('お手伝いの追加に失敗しました。')
+    } finally {
+      setIsAddingChore(false)
+    }
+  }
+
+  const handleDeleteChore = async (choreId: string) => {
+    try {
+      setIsDeletingId(choreId)
+      await apiService.deleteChore(choreId)
+      setChores(chores.filter((c) => c.id !== choreId))
+      setError(null)
+    } catch (err) {
+      console.error('Failed to delete chore:', err)
+      setError('お手伝いの削除に失敗しました。')
+    } finally {
+      setIsDeletingId(null)
+    }
+  }
+
+  const handleAddReward = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setIsAddingReward(true)
+      const createdReward = await apiService.createReward(
+        newReward.name,
+        newReward.points
+      )
+      setRewards([...rewards, createdReward])
+      setNewReward({ name: '', points: 100 })
+      setShowAddRewardForm(false)
+      setError(null)
+    } catch (err) {
+      console.error('Failed to add reward:', err)
+      setError('ご褒美の追加に失敗しました。')
+    } finally {
+      setIsAddingReward(false)
+    }
+  }
+
+  const handleDeleteReward = async (rewardId: string) => {
+    try {
+      setIsDeletingId(rewardId)
+      await apiService.deleteReward(rewardId)
+      setRewards(rewards.filter((r) => r.id !== rewardId))
+      setError(null)
+    } catch (err) {
+      console.error('Failed to delete reward:', err)
+      setError('ご褒美の削除に失敗しました。')
+    } finally {
+      setIsDeletingId(null)
+    }
+  }
+
+  const handleEditChore = (chore: Chore) => {
+    setEditingChoreId(chore.id)
+    setNewChore({ name: chore.name, points: chore.points, recurring: chore.recurring })
+    setShowAddChoreForm(true)
+  }
+
+  const handleSaveChore = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingChoreId) return
+
+    try {
+      setIsAddingChore(true)
+      const updatedChore = await apiService.updateChore(
+        editingChoreId,
+        newChore.name,
+        newChore.points,
+        newChore.recurring
+      )
+      setChores(chores.map((c) => (c.id === editingChoreId ? updatedChore : c)))
+      setNewChore({ name: '', points: 10, recurring: false })
+      setShowAddChoreForm(false)
+      setEditingChoreId(null)
+      setError(null)
+    } catch (err) {
+      console.error('Failed to update chore:', err)
+      setError('お手伝いの更新に失敗しました。')
+    } finally {
+      setIsAddingChore(false)
+    }
+  }
+
+  const handleEditReward = (reward: Reward) => {
+    setEditingRewardId(reward.id)
+    setNewReward({ name: reward.name, points: reward.points })
+    setShowAddRewardForm(true)
+  }
+
+  const handleSaveReward = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingRewardId) return
+
+    try {
+      setIsAddingReward(true)
+      const updatedReward = await apiService.updateReward(
+        editingRewardId,
+        newReward.name,
+        newReward.points
+      )
+      setRewards(rewards.map((r) => (r.id === editingRewardId ? updatedReward : r)))
+      setNewReward({ name: '', points: 100 })
+      setShowAddRewardForm(false)
+      setEditingRewardId(null)
+      setError(null)
+    } catch (err) {
+      console.error('Failed to update reward:', err)
+      setError('ご褒美の更新に失敗しました。')
+    } finally {
+      setIsAddingReward(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingChoreId(null)
+    setEditingRewardId(null)
+    setNewChore({ name: '', points: 10, recurring: false })
+    setNewReward({ name: '', points: 100 })
+    setShowAddChoreForm(false)
+    setShowAddRewardForm(false)
+  }
+
+  const handleSwitchToChild = async () => {
+    try {
+      setIsSwitchingUserType(true)
+      await apiService.updateUserType('child')
+      // ページをリロードして、ユーザータイプの変更を反映
+      window.location.reload()
+    } catch (err) {
+      console.error('Failed to switch user type:', err)
+      setError('ユーザータイプの切り替えに失敗しました。')
+    } finally {
+      setIsSwitchingUserType(false)
+    }
   }
 
   if (isLoading) {
@@ -418,7 +583,224 @@ export default function HomePage() {
 
           {activeTab === 'manage' && user?.userType === 'parent' && (
             <section className="manage-tab">
-              <p>管理画面は現在工事中です。</p>
+              <div className="manage-container">
+                {/* ユーザータイプ切り替え */}
+                <div className="manage-section">
+                  <div className="section-header">
+                    <h3>👥 ユーザータイプ</h3>
+                  </div>
+                  <div className="user-type-info">
+                    <p className="current-type">現在のユーザータイプ: <strong>親</strong></p>
+                    <p className="user-type-description">親として管理画面にアクセスしています。お手伝いとご褒美を管理できます。</p>
+                    <button 
+                      className="switch-button"
+                      onClick={handleSwitchToChild}
+                      disabled={isSwitchingUserType}
+                    >
+                      {isSwitchingUserType ? '切り替え中...' : '子のアカウントに切り替え'}
+                    </button>
+                  </div>
+                </div>
+                {/* お手伝い管理セクション */}
+                <div className="manage-section">
+                  <div className="section-header">
+                    <h3>📋 お手伝いを管理</h3>
+                    <button 
+                      className="add-button"
+                      onClick={() => setShowAddChoreForm(!showAddChoreForm)}
+                    >
+                      {showAddChoreForm ? '✕ キャンセル' : '+ 新しいお手伝いを追加'}
+                    </button>
+                  </div>
+
+                  {/* お手伝い追加フォーム */}
+                  {showAddChoreForm && (
+                    <div className="form-container">
+                      <form onSubmit={editingChoreId ? handleSaveChore : handleAddChore}>
+                        <div className="form-group">
+                          <label htmlFor="chore-name">お手伝いの名前</label>
+                          <input
+                            id="chore-name"
+                            type="text"
+                            placeholder="例：お皿洗い"
+                            value={newChore.name}
+                            onChange={(e) => setNewChore({ ...newChore, name: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="chore-points">ポイント</label>
+                          <input
+                            id="chore-points"
+                            type="number"
+                            placeholder="10"
+                            min="1"
+                            value={newChore.points}
+                            onChange={(e) => setNewChore({ ...newChore, points: parseInt(e.target.value) || 0 })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group checkbox">
+                          <label htmlFor="chore-recurring">
+                            <input
+                              id="chore-recurring"
+                              type="checkbox"
+                              checked={newChore.recurring}
+                              onChange={(e) => setNewChore({ ...newChore, recurring: e.target.checked })}
+                            />
+                            毎日のお手伝い（リカーリング）
+                          </label>
+                        </div>
+                        <div className="form-actions">
+                          <button 
+                            type="submit" 
+                            className="submit-button"
+                            disabled={isAddingChore}
+                          >
+                            {isAddingChore ? '処理中...' : editingChoreId ? '更新' : '追加'}
+                          </button>
+                          <button 
+                            type="button" 
+                            className="cancel-button"
+                            onClick={handleCancelEdit}
+                          >
+                            キャンセル
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+
+                  {/* お手伝いリスト */}
+                  {chores.length === 0 ? (
+                    <div className="empty-state">
+                      <p>お手伝いがまだ登録されていません。</p>
+                    </div>
+                  ) : (
+                    <div className="manage-items-list">
+                      {chores.map((chore) => (
+                        <div key={chore.id} className="manage-item">
+                          <div className="item-info">
+                            <h4>{chore.name}</h4>
+                            <div className="item-meta">
+                              <span className="badge">{chore.points} ポイント</span>
+                              {chore.recurring && <span className="badge recurring">毎日</span>}
+                            </div>
+                          </div>
+                          <div className="item-actions">
+                            <button 
+                              className="edit-button"
+                              onClick={() => handleEditChore(chore)}
+                            >
+                              編集
+                            </button>
+                            <button 
+                              className="delete-button"
+                              onClick={() => handleDeleteChore(chore.id)}
+                              disabled={isDeletingId === chore.id}
+                            >
+                              {isDeletingId === chore.id ? '削除中...' : '削除'}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* ご褒美管理セクション */}
+                <div className="manage-section">
+                  <div className="section-header">
+                    <h3>🎁 ご褒美を管理</h3>
+                    <button 
+                      className="add-button"
+                      onClick={() => setShowAddRewardForm(!showAddRewardForm)}
+                    >
+                      {showAddRewardForm ? '✕ キャンセル' : '+ 新しいご褒美を追加'}
+                    </button>
+                  </div>
+
+                  {/* ご褒美追加フォーム */}
+                  {showAddRewardForm && (
+                    <div className="form-container">
+                      <form onSubmit={editingRewardId ? handleSaveReward : handleAddReward}>
+                        <div className="form-group">
+                          <label htmlFor="reward-name">ご褒美の名前</label>
+                          <input
+                            id="reward-name"
+                            type="text"
+                            placeholder="例：ゲーム 30分"
+                            value={newReward.name}
+                            onChange={(e) => setNewReward({ ...newReward, name: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="reward-points">必要ポイント</label>
+                          <input
+                            id="reward-points"
+                            type="number"
+                            placeholder="100"
+                            min="1"
+                            value={newReward.points}
+                            onChange={(e) => setNewReward({ ...newReward, points: parseInt(e.target.value) || 0 })}
+                            required
+                          />
+                        </div>
+                        <div className="form-actions">
+                          <button 
+                            type="submit" 
+                            className="submit-button"
+                            disabled={isAddingReward}
+                          >
+                            {isAddingReward ? '処理中...' : editingRewardId ? '更新' : '追加'}
+                          </button>
+                          <button 
+                            type="button" 
+                            className="cancel-button"
+                            onClick={handleCancelEdit}
+                          >
+                            キャンセル
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+
+                  {/* ご褒美リスト */}
+                  {rewards.length === 0 ? (
+                    <div className="empty-state">
+                      <p>ご褒美がまだ登録されていません。</p>
+                    </div>
+                  ) : (
+                    <div className="manage-items-list">
+                      {rewards.map((reward) => (
+                        <div key={reward.id} className="manage-item">
+                          <div className="item-info">
+                            <h4>{reward.name}</h4>
+                            <span className="badge">{reward.points} ポイント必要</span>
+                          </div>
+                          <div className="item-actions">
+                            <button 
+                              className="edit-button"
+                              onClick={() => handleEditReward(reward)}
+                            >
+                              編集
+                            </button>
+                            <button 
+                              className="delete-button"
+                              onClick={() => handleDeleteReward(reward.id)}
+                              disabled={isDeletingId === reward.id}
+                            >
+                              {isDeletingId === reward.id ? '削除中...' : '削除'}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </section>
           )}
         </main>

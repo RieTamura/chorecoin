@@ -35,10 +35,47 @@
   line-height: 1.6;
 }
 
-.google-login-button {
+.google-login-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  margin: 32px 0;
+  min-height: 50px;
+}
+
+/* Google OAuth ボタンのスタイル */
+.google-login-container > div {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.google-login-container iframe {
+  width: 100% !important;
+  height: auto !important;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
+}
+
+.loading-spinner p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.error-message {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 24px;
+  color: #721c24;
+  font-size: 14px;
 }
 
 .google-login-placeholder {
@@ -76,6 +113,33 @@
   font-family: 'Courier New', monospace;
 }
 
+.demo-notice details {
+  margin-top: 12px;
+}
+
+.demo-notice summary {
+  cursor: pointer;
+  color: #856404;
+  text-decoration: underline;
+  font-size: 13px;
+}
+
+.demo-notice pre {
+  background: #f0e4c6;
+  padding: 8px;
+  border-radius: 4px;
+  margin: 8px 0 0 0;
+  font-size: 11px;
+  overflow-x: auto;
+  text-align: left;
+}
+
+.login-footer {
+  font-size: 12px;
+  color: #999;
+  margin: 24px 0 0 0;
+}
+
 .loading {
   display: flex;
   justify-content: center;
@@ -105,4 +169,9 @@
   .login-description {
     font-size: 14px;
   }
+
+  .google-login-container {
+    margin: 24px 0;
+  }
 }
+

@@ -13,6 +13,7 @@ export default function HomePage() {
   const [pointsData, setPointsData] = useState<PointsData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'home' | 'rewards' | 'history' | 'manage'>('home')
   const [isCompletingId, setIsCompletingId] = useState<string | null>(null)
   const [isClaimingId, setIsClaimingId] = useState<string | null>(null)
@@ -46,6 +47,22 @@ export default function HomePage() {
     // 履歴データを取得
     loadHistoryData(currentDate.getFullYear(), currentDate.getMonth())
   }, [currentDate])
+
+  // 成功メッセージの自動消去
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [success])
+
+  // エラーメッセージの自動消去（ユーザーが手動で消去できるように留意）
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
 
   const loadData = async () => {
     try {
@@ -94,6 +111,7 @@ export default function HomePage() {
   const handleCompleteChore = async (choreId: string) => {
     try {
       setIsCompletingId(choreId)
+      setError(null)
       const result = await apiService.completeChore(choreId)
 
       // ポイント情報を更新
@@ -111,9 +129,12 @@ export default function HomePage() {
       if (chore && !chore.recurring) {
         setChores(chores.filter((c) => c.id !== choreId))
       }
+
+      // 成功メッセージを表示
+      setSuccess(`「${chore?.name}」を完了しました！${result.pointsEarned || 0}ポイント獲得！`)
     } catch (err) {
       console.error('Failed to complete chore:', err)
-      setError('お手伝い完了に失敗しました。')
+      setError(err instanceof Error ? err.message : 'お手伝い完了に失敗しました。')
     } finally {
       setIsCompletingId(null)
     }
@@ -122,7 +143,11 @@ export default function HomePage() {
   const handleClaimReward = async (rewardId: string) => {
     try {
       setIsClaimingId(rewardId)
+      setError(null)
       const result = await apiService.claimReward(rewardId)
+
+      // ご褒美情報を取得
+      const reward = rewards.find((r) => r.id === rewardId)
 
       // ポイント情報を更新
       setPointsData((prev) => {
@@ -135,8 +160,7 @@ export default function HomePage() {
       })
 
       // 成功メッセージを表示
-      setError(null)
-      // 成功メッセージの表示（別途実装可能）
+      setSuccess(`「${reward?.name}」を交換しました！`)
     } catch (err: unknown) {
       console.error('Failed to claim reward:', err)
       if (err instanceof Error) {
@@ -167,9 +191,10 @@ export default function HomePage() {
       setNewChore({ name: '', points: 10, recurring: false })
       setShowAddChoreForm(false)
       setError(null)
+      setSuccess(`「${newChore.name}」を追加しました！`)
     } catch (err) {
       console.error('Failed to add chore:', err)
-      setError('お手伝いの追加に失敗しました。')
+      setError(err instanceof Error ? err.message : 'お手伝いの追加に失敗しました。')
     } finally {
       setIsAddingChore(false)
     }
@@ -178,12 +203,14 @@ export default function HomePage() {
   const handleDeleteChore = async (choreId: string) => {
     try {
       setIsDeletingId(choreId)
+      const chore = chores.find((c) => c.id === choreId)
       await apiService.deleteChore(choreId)
       setChores(chores.filter((c) => c.id !== choreId))
       setError(null)
+      setSuccess(`「${chore?.name}」を削除しました。`)
     } catch (err) {
       console.error('Failed to delete chore:', err)
-      setError('お手伝いの削除に失敗しました。')
+      setError(err instanceof Error ? err.message : 'お手伝いの削除に失敗しました。')
     } finally {
       setIsDeletingId(null)
     }
@@ -201,9 +228,10 @@ export default function HomePage() {
       setNewReward({ name: '', points: 100 })
       setShowAddRewardForm(false)
       setError(null)
+      setSuccess(`「${newReward.name}」を追加しました！`)
     } catch (err) {
       console.error('Failed to add reward:', err)
-      setError('ご褒美の追加に失敗しました。')
+      setError(err instanceof Error ? err.message : 'ご褒美の追加に失敗しました。')
     } finally {
       setIsAddingReward(false)
     }
@@ -212,12 +240,14 @@ export default function HomePage() {
   const handleDeleteReward = async (rewardId: string) => {
     try {
       setIsDeletingId(rewardId)
+      const reward = rewards.find((r) => r.id === rewardId)
       await apiService.deleteReward(rewardId)
       setRewards(rewards.filter((r) => r.id !== rewardId))
       setError(null)
+      setSuccess(`「${reward?.name}」を削除しました。`)
     } catch (err) {
       console.error('Failed to delete reward:', err)
-      setError('ご褒美の削除に失敗しました。')
+      setError(err instanceof Error ? err.message : 'ご褒美の削除に失敗しました。')
     } finally {
       setIsDeletingId(null)
     }
@@ -246,9 +276,10 @@ export default function HomePage() {
       setShowAddChoreForm(false)
       setEditingChoreId(null)
       setError(null)
+      setSuccess('お手伝いを更新しました！')
     } catch (err) {
       console.error('Failed to update chore:', err)
-      setError('お手伝いの更新に失敗しました。')
+      setError(err instanceof Error ? err.message : 'お手伝いの更新に失敗しました。')
     } finally {
       setIsAddingChore(false)
     }
@@ -276,9 +307,10 @@ export default function HomePage() {
       setShowAddRewardForm(false)
       setEditingRewardId(null)
       setError(null)
+      setSuccess('ご褒美を更新しました！')
     } catch (err) {
       console.error('Failed to update reward:', err)
-      setError('ご褒美の更新に失敗しました。')
+      setError(err instanceof Error ? err.message : 'ご褒美の更新に失敗しました。')
     } finally {
       setIsAddingReward(false)
     }
@@ -297,11 +329,12 @@ export default function HomePage() {
     try {
       setIsSwitchingUserType(true)
       await apiService.updateUserType('child')
+      setSuccess('子のアカウントに切り替えました。ページをリロードしています...')
       // ページをリロードして、ユーザータイプの変更を反映
-      window.location.reload()
+      setTimeout(() => window.location.reload(), 1000)
     } catch (err) {
       console.error('Failed to switch user type:', err)
-      setError('ユーザータイプの切り替えに失敗しました。')
+      setError(err instanceof Error ? err.message : 'ユーザータイプの切り替えに失敗しました。')
     } finally {
       setIsSwitchingUserType(false)
     }
@@ -338,8 +371,25 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* エラーメッセージ */}
-        {error && <div className="error-message">{error}</div>}
+        {/* メッセージ表示エリア */}
+        {error && (
+          <div className="message-wrapper">
+            <div className="error-message">
+              <span className="message-icon">⚠️</span>
+              <span className="message-text">{error}</span>
+              <button className="message-close" onClick={() => setError(null)}>✕</button>
+            </div>
+          </div>
+        )}
+        {success && (
+          <div className="message-wrapper">
+            <div className="success-message">
+              <span className="message-icon">✨</span>
+              <span className="message-text">{success}</span>
+              <button className="message-close" onClick={() => setSuccess(null)}>✕</button>
+            </div>
+          </div>
+        )}
 
         {/* タブナビゲーション */}
         <nav className="tab-navigation">

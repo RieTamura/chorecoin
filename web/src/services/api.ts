@@ -40,6 +40,7 @@ apiClient.interceptors.response.use(
       const customError = new Error(errorData.message)
       ;(customError as any).code = errorData.code
       ;(customError as any).statusCode = error.response?.status
+      ;(customError as any).details = errorData.details
       return Promise.reject(customError)
     }
 
@@ -48,21 +49,43 @@ apiClient.interceptors.response.use(
     const statusCode = error.response?.status || 500
     switch (statusCode) {
       case 400:
-        message = '不正なリクエストです。'
+        message = 'リクエストが無効です。入力内容を確認してください。'
+        break
+      case 401:
+        message = 'ログインが必要です。'
+        break
+      case 403:
+        message = 'この操作を実行する権限がありません。'
         break
       case 404:
         message = 'リソースが見つかりません。'
         break
+      case 409:
+        message = 'リソースが既に存在します。'
+        break
+      case 422:
+        message = '入力値が正しくありません。'
+        break
       case 500:
-        message = 'サーバーエラーが発生しました。'
+        message = 'サーバーエラーが発生しました。時間をおいて再度お試しください。'
         break
       case 503:
-        message = 'サーバーが利用できません。'
+        message = 'サーバーが利用できません。時間をおいて再度お試しください。'
         break
+    }
+
+    // ネットワークエラーの場合
+    if (!error.response) {
+      if (error.message === 'Network Error') {
+        message = 'ネットワーク接続に問題があります。インターネット接続を確認してください。'
+      } else if (error.code === 'ECONNABORTED') {
+        message = 'リクエストがタイムアウトしました。ネットワーク接続を確認してください。'
+      }
     }
 
     const defaultError = new Error(message)
     ;(defaultError as any).statusCode = statusCode
+    ;(defaultError as any).originalError = error
     return Promise.reject(defaultError)
   }
 )

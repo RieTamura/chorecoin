@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User } from '../types'
-import apiService from '../services/api'
+import apiService, { DEMO_TOKEN_PREFIX } from '../services/api'
 
 const AUTH_CHECK_TIMEOUT_MS = 5000
 
@@ -9,6 +9,7 @@ interface AuthContextType {
   isLoading: boolean
   isAuthenticated: boolean
   login: (idToken: string) => Promise<void>
+  demoLogin: () => void
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
 }
@@ -26,6 +27,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuthStatus = async () => {
     try {
       const token = localStorage.getItem('authToken')
+      if (token?.startsWith(DEMO_TOKEN_PREFIX)) {
+        const demoUser = apiService.initializeDemoData()
+        setUser(demoUser)
+        return
+      }
+
       if (token) {
         try {
           // タイムアウト処理を追加（5秒で中止）
@@ -64,6 +71,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Login failed:', error)
       throw error
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const demoLogin = () => {
+    try {
+      const demoUser = apiService.initializeDemoData()
+      const demoToken = `${DEMO_TOKEN_PREFIX}-${Date.now()}`
+      localStorage.setItem('authToken', demoToken)
+      setUser(demoUser)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -78,6 +98,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
+      if (apiService.isDemoMode()) {
+        setUser(apiService.getDemoUser())
+        return
+      }
+
       // タイムアウト処理を追加（5秒で中止）
       let timeoutId: ReturnType<typeof setTimeout> | null = null
       const timeoutPromise = new Promise<never>((_, reject) => {
@@ -100,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, demoLogin, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

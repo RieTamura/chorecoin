@@ -140,6 +140,42 @@
   margin: 24px 0 0 0;
 }
 
+/* デモモードセクション */
+.demo-mode-section {
+  margin: 24px 0 0 0;
+  padding-top: 24px;
+  border-top: 1px solid #eee;
+}
+
+.demo-mode-label {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 12px 0;
+}
+
+.demo-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.demo-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.demo-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .loading {
   display: flex;
   justify-content: center;

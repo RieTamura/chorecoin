@@ -6,7 +6,7 @@ import './LoginPage.css'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { user, isLoading, login } = useAuth()
+  const { user, isLoading, login, demoLogin } = useAuth()
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
 
@@ -41,6 +41,22 @@ export default function LoginPage() {
 
   const handleGoogleError = () => {
     setLoginError('Google認証に失敗しました。もう一度お試しください。')
+  }
+
+  // デモテスト用: ダミーユーザーでログイン
+  const handleDemoLogin = () => {
+    try {
+      setIsLoggingIn(true)
+      setLoginError(null)
+
+      demoLogin()
+      navigate('/')
+    } catch (error) {
+      console.error('Demo login failed:', error)
+      setLoginError('デモログインに失敗しました。')
+    } finally {
+      setIsLoggingIn(false)
+    }
   }
 
   if (isLoading) {
@@ -111,6 +127,18 @@ VITE_API_URL=http://localhost:8787`}</pre>
                 size="large"
               />
             )}
+          </div>
+
+          {/* デモモードボタン */}
+          <div className="demo-mode-section">
+            <p className="demo-mode-label">Google 認証がない場合：</p>
+            <button 
+              className="demo-button"
+              onClick={handleDemoLogin}
+              disabled={isLoggingIn}
+            >
+              🧪 デモモードでテスト
+            </button>
           </div>
 
           <p className="login-footer">

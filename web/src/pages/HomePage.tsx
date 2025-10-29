@@ -340,6 +340,20 @@ export default function HomePage() {
     }
   }
 
+  const handleSwitchToParent = async () => {
+    try {
+      setIsSwitchingUserType(true)
+      await apiService.updateUserType('parent')
+      setSuccess('親のアカウントに切り替えました。管理タブを表示するためページをリロードしています...')
+      setTimeout(() => window.location.reload(), 1000)
+    } catch (err) {
+      console.error('Failed to switch user type:', err)
+      setError(err instanceof Error ? err.message : 'ユーザータイプの切り替えに失敗しました。')
+    } finally {
+      setIsSwitchingUserType(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="home-container">
@@ -370,6 +384,24 @@ export default function HomePage() {
             <div className="points-label">ポイント</div>
           </div>
         </div>
+
+        {user?.userType === 'child' && (
+          <div className="role-switch-card">
+            <div className="role-switch-content">
+              <h3>👨‍👩‍👧 親モードに切り替えますか？</h3>
+              <p>
+                お手伝いやご褒美を追加するには親モードに切り替える必要があります。本人確認が完了したら、下のボタンを押してください。
+              </p>
+            </div>
+            <button
+              className="role-switch-button"
+              onClick={handleSwitchToParent}
+              disabled={isSwitchingUserType}
+            >
+              {isSwitchingUserType ? '切り替え中...' : '親のアカウントに切り替え'}
+            </button>
+          </div>
+        )}
 
         {/* メッセージ表示エリア */}
         {error && (

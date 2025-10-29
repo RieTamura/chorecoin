@@ -566,10 +566,22 @@ const apiService = {
     if (startDate) params.append('startDate', startDate)
     if (endDate) params.append('endDate', endDate)
 
-    const response = await apiClient.get<{ history: HistoryEntry[] }>(
+    const response = await apiClient.get<unknown>(
       `/api/history?${params.toString()}`
     )
-    return response.data.history
+
+    const results = Array.isArray(response.data)
+      ? response.data
+      : (response.data as { history?: unknown[] }).history ?? []
+
+    return (results as any[]).map((entry) => ({
+      id: entry.id,
+      userId: entry.userId ?? entry.user_id,
+      type: entry.type,
+      name: entry.name,
+      points: typeof entry.points === 'number' ? entry.points : Number(entry.points ?? 0),
+      createdAt: entry.createdAt ?? entry.created_at ?? new Date().toISOString(),
+    }))
   },
 
   async getPoints(): Promise<PointsData> {

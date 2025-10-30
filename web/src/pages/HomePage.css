@@ -2,8 +2,10 @@
 :root {
   --bg-surface: #ffffff;
   --hover-surface: #f1f3f6;
-  --primary: #667eea;
-  --primary-hover: #8595ff;
+  --primary: #ffb81d;
+  --primary-hover: #eaa019;
+  --button: #4169e2;
+  --button-hover: #3657c4;
   --accent: #ff9100;
   --accent-hover: #ffb347;
   --danger: #cb2431;
@@ -19,7 +21,7 @@
 }
 
 .home-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #fdd163 100%);
   color: white;
   padding: 20px 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -43,9 +45,9 @@
 }
 
 .logout-button {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: var(--button);
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.6);
+  border: none;
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
@@ -55,7 +57,7 @@
 }
 
 .logout-button:hover {
-  background-color: rgba(255, 255, 255, 0.18);
+  background-color: var(--button-hover);
 }
 
 .home-wrapper {
@@ -277,13 +279,13 @@
 
 .tab-button:hover {
   background-color: var(--hover-surface);
-  color: var(--primary);
+  color: #c27500;
 }
 
 .tab-button.active {
   background-color: var(--hover-surface);
-  color: var(--primary);
-  border-bottom-color: var(--primary);
+  color: #c27500;
+  border-bottom-color: #c27500;
 }
 
 /* タブコンテンツ */
@@ -356,8 +358,8 @@
 }
 
 .chore-points {
-  background: #e8f0ff;
-  color: var(--primary);
+  background: #fff4db;
+  color: #c27500;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 14px;
@@ -374,7 +376,7 @@
 }
 
 .complete-button {
-  background-color: var(--primary);
+  background-color: var(--button);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -386,8 +388,8 @@
 }
 
 .complete-button:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(133, 149, 255, 0.3);
+  background-color: var(--button-hover);
+  box-shadow: 0 4px 12px rgba(65, 105, 226, 0.3);
 }
 
 .complete-button:disabled {
@@ -444,8 +446,8 @@
 }
 
 .reward-points.available {
-  background: #d4f4dd;
-  color: var(--success);
+  background: #fff4db;
+  color: #c27500;
 }
 
 .reward-points.unavailable {
@@ -460,7 +462,7 @@
 }
 
 .claim-button {
-  background-color: var(--primary);
+  background-color: var(--button);
   color: white;
   border: none;
   padding: 10px 16px;
@@ -471,8 +473,8 @@
 }
 
 .claim-button:hover:not(.disabled) {
-  background-color: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(133, 149, 255, 0.3);
+  background-color: var(--button-hover);
+  box-shadow: 0 4px 12px rgba(65, 105, 226, 0.3);
 }
 
 .claim-button.disabled {
@@ -507,7 +509,7 @@
 }
 
 .month-nav-button {
-  background-color: var(--primary);
+  background-color: var(--button);
   color: white;
   border: none;
   padding: 8px 12px;
@@ -519,7 +521,7 @@
 }
 
 .month-nav-button:hover {
-  background-color: var(--primary-hover);
+  background-color: var(--button-hover);
 }
 
 /* カレンダーコンテナ */
@@ -576,7 +578,7 @@
 }
 
 .calendar-day.has-history {
-  background: linear-gradient(135deg, #f0f4ff 0%, #fffaf0 100%);
+  background: linear-gradient(135deg, #fff4db 0%, #fffaf0 100%);
   border-color: var(--primary);
 }
 
@@ -784,7 +786,7 @@
 }
 
 .add-button {
-  background-color: var(--primary);
+  background-color: var(--button);
   color: white;
   border: none;
   padding: 10px 16px;
@@ -796,9 +798,9 @@
 }
 
 .add-button:hover {
-  background-color: var(--primary-hover);
+  background-color: var(--button-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(133, 149, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(65, 105, 226, 0.3);
 }
 
 /* フォーム */
@@ -861,7 +863,7 @@
 .submit-button {
   width: 100%;
   padding: 12px;
-  background-color: var(--primary);
+  background-color: var(--button);
   color: white;
   border: none;
   border-radius: 6px;
@@ -872,9 +874,9 @@
 }
 
 .submit-button:hover:not(:disabled) {
-  background-color: var(--primary-hover);
+  background-color: var(--button-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(133, 149, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(65, 105, 226, 0.3);
 }
 
 .submit-button:disabled {
@@ -947,8 +949,8 @@
 
 .badge {
   display: inline-block;
-  background: #e8f1ff;
-  color: var(--primary);
+  background: #fff4db;
+  color: #c27500;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -957,7 +959,7 @@
 
 .badge.recurring {
   background: #fff4e6;
-  color: #ff9100;
+  color: #ff8c42;
 }
 
 .item-actions {
@@ -979,11 +981,11 @@
 
 .edit-button {
   background-color: #e8f1ff;
-  color: var(--primary);
+  color: var(--button);
 }
 
 .edit-button:hover {
-  background-color: var(--primary-hover);
+  background-color: var(--button-hover);
   color: white;
 }
 

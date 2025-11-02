@@ -10,8 +10,8 @@ import users from './routes/users';
 
 const app = new Hono<{ Bindings: Env }>();
 
-// CORS configuration
-app.use('/*', cors({
+// CORS configuration - only for API routes
+app.use('/api/*', cors({
   origin: '*', // In production, set this to your Expo app's origin
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowHeaders: ['Content-Type', 'Authorization'],
@@ -23,22 +23,28 @@ app.get('/', (c) => {
   return c.json({ message: 'Chore Coin API is running!' });
 });
 
-// Mount routes
+// Mount API routes
 app.route('/api/auth', auth);
 app.route('/api/chores', chores);
 app.route('/api/rewards', rewards);
 app.route('/api/history', history);
 app.route('/api/users', users);
 
-// 404 handler
+// 404 handler for API
 app.notFound((c) => {
-  const error = new AppError(
-    404,
-    ErrorCodes.NOT_FOUND,
-    ErrorMessages[ErrorCodes.NOT_FOUND]
-  );
-  const response = formatErrorResponse(error);
-  return c.json(response, 404);
+  // Check if it's an API request
+  if (c.req.path.startsWith('/api/')) {
+    const error = new AppError(
+      404,
+      ErrorCodes.NOT_FOUND,
+      ErrorMessages[ErrorCodes.NOT_FOUND]
+    );
+    const response = formatErrorResponse(error);
+    return c.json(response, 404);
+  }
+  
+  // For non-API routes, let static assets handle it
+  return new Response('Not found', { status: 404 });
 });
 
 // Error handler

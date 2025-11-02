@@ -12,7 +12,7 @@ binding = "DB"
 database_name = "chorecoin-db"
 database_id = "43cc6ad6-e92f-4f83-bc02-8cc0c22303a9"
 
-# Production environment
+# Production environment with Static Assets
 [env.production]
 name = "chorecoin-backend-prod"
 vars = { ENVIRONMENT = "production" }
@@ -21,3 +21,8 @@ vars = { ENVIRONMENT = "production" }
 binding = "DB"
 database_name = "chorecoin-db-prod"
 database_id = "fdde4290-e389-472e-bd04-68bee2cd1dc7"
+
+# Static Assets (Web app frontend)
+[env.production.assets]
+directory = "../web/dist"
+binding = "ASSETS"

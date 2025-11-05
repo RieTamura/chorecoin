@@ -46,12 +46,17 @@
 }
 
 .google-login-wrapper {
-  display: block;
-  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0 auto;
+  width: auto;
 }
 
 .google-login-wrapper > * {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0 auto;
 }
 

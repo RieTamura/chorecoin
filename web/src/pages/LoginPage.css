@@ -40,17 +40,23 @@
   min-height: 50px;
   width: 100%;
   display: flex;
-  justify-content: center;
+  width: 100%;
   align-items: center;
   text-align: center;
-}
+.google-login-wrapper > * {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 100%;
+.google-login-wrapper > * {
 
 .google-login-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  width: auto;
+  width: 100%;
 }
 
 .google-login-wrapper > * {
@@ -58,6 +64,19 @@
   justify-content: center;
   align-items: center;
   margin: 0 auto;
+  width: 100%;
+}
+
+.google-login-wrapper > * > * {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.google-login-wrapper div[role='button'] {
+  width: auto !important;
+  margin: 0 auto !important;
 }
 
 .google-login-container iframe {
@@ -65,11 +84,6 @@
   margin: 0 auto;
   width: auto;
 }
-
-.loading-spinner {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
   min-height: 50px;
 }

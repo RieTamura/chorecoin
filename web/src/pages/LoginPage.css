@@ -36,22 +36,30 @@
 }
 
 .google-login-container {
-  display: flex;
-  justify-content: center;
   margin: 32px 0;
   min-height: 50px;
-}
-
-/* Google OAuth ボタンのスタイル */
-.google-login-container > div {
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+.google-login-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.google-login-wrapper > * {
+  display: flex !important;
+  justify-content: center !important;
+  width: 100%;
 }
 
 .google-login-container iframe {
-  width: 100% !important;
-  height: auto !important;
+  display: block !important;
+  margin: 0 auto !important;
+  width: auto !important;
 }
 
 .loading-spinner {

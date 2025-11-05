@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import * as jose from 'jose';
 import { Env, GoogleTokenPayload, User } from '../types';
 import { AppError, ErrorCodes, ErrorMessages } from '../errors';
+import { mapDbUserToResponse } from '../utils/user';
 
 const auth = new Hono<{ Bindings: Env }>();
 
@@ -73,9 +74,11 @@ auth.post('/google', async (c) => {
         'UPDATE users SET name = ?, email = ?, updated_at = CURRENT_TIMESTAMP WHERE google_id = ?'
       ).bind(googlePayload.name, googlePayload.email, googlePayload.sub).run();
       
-      user = existingUser;
-      user.name = googlePayload.name;
-      user.email = googlePayload.email;
+      user = {
+        ...existingUser,
+        name: googlePayload.name,
+        email: googlePayload.email,
+      };
     } else {
       // Create new user
       const userId = generateUUID();
@@ -89,6 +92,7 @@ auth.post('/google', async (c) => {
         email: googlePayload.email,
         name: googlePayload.name,
         user_type: 'child',
+        parent_passcode_hash: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -101,14 +105,16 @@ auth.post('/google', async (c) => {
       .setExpirationTime('24h')
       .sign(secret);
 
+    // Fetch the latest user state to include passcode info
+    const latestUser = await c.env.DB.prepare(
+      'SELECT id, email, name, user_type, created_at, updated_at, parent_passcode_hash FROM users WHERE id = ?'
+    ).bind(user.id).first<User>();
+
+    const responseUser = latestUser ? mapDbUserToResponse(latestUser) : mapDbUserToResponse(user);
+
     return c.json({
       token: jwt,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        userType: user.user_type,
-      },
+      user: responseUser,
     });
   } catch (error) {
     if (error instanceof AppError) {

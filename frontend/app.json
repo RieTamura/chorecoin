@@ -30,8 +30,8 @@
       "expo-router"
     ],
     "extra": {
-      "apiUrl": "http://localhost:8787",
-      "googleClientId": "540416520021-i5kukvtde7bf507lv625m0avvmur56du.apps.googleusercontent.com"
+      "apiUrl": "https://chorecoin-backend-prod.cuddlespace03.workers.dev",
+      "googleClientId": "540416520021-khipni2frpk6u0fcnbpqda85qqge42j0.apps.googleusercontent.com"
     }
   }
 }

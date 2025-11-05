@@ -6,7 +6,7 @@ import { generateCalendarMonth, getMonthRange, getPreviousMonth, getNextMonth, C
 import './HomePage.css'
 
 export default function HomePage() {
-  const { user, logout } = useAuth()
+  const { user, logout, refreshUser } = useAuth()
   const [chores, setChores] = useState<Chore[]>([])
   const [rewards, setRewards] = useState<Reward[]>([])
   const [history, setHistory] = useState<HistoryEntry[]>([])
@@ -29,6 +29,12 @@ export default function HomePage() {
   const [isAddingChore, setIsAddingChore] = useState(false)
   const [isAddingReward, setIsAddingReward] = useState(false)
   const [isSwitchingUserType, setIsSwitchingUserType] = useState(false)
+  const [isPasscodeModalOpen, setIsPasscodeModalOpen] = useState(false)
+  const [passcodeMode, setPasscodeMode] = useState<'setup' | 'verify'>('verify')
+  const [passcode, setPasscode] = useState('')
+  const [confirmPasscode, setConfirmPasscode] = useState('')
+  const [passcodeError, setPasscodeError] = useState<string | null>(null)
+  const [isProcessingPasscode, setIsProcessingPasscode] = useState(false)
   
   // カレンダー関連
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -340,19 +346,64 @@ export default function HomePage() {
     }
   }
 
-  const handleSwitchToParent = async () => {
-    try {
-      setIsSwitchingUserType(true)
-      await apiService.updateUserType('parent')
-      setSuccess('親のアカウントに切り替えました。管理タブを表示するためページをリロードしています...')
-      setTimeout(() => window.location.reload(), 1000)
-    } catch (err) {
-      console.error('Failed to switch user type:', err)
-      setError(err instanceof Error ? err.message : 'ユーザータイプの切り替えに失敗しました。')
-    } finally {
-      setIsSwitchingUserType(false)
+    const openParentPasscodeModal = () => {
+      if (isSwitchingUserType) {
+        return
+      }
+      setPasscode('')
+      setConfirmPasscode('')
+      setPasscodeError(null)
+      setPasscodeMode(user?.hasPasscode ? 'verify' : 'setup')
+      setIsPasscodeModalOpen(true)
     }
-  }
+
+    const closeParentPasscodeModal = () => {
+      if (isProcessingPasscode) {
+        return
+      }
+      setIsPasscodeModalOpen(false)
+      setPasscode('')
+      setConfirmPasscode('')
+      setPasscodeError(null)
+    }
+
+    const handleParentPasscodeSubmit = async (event: React.FormEvent) => {
+      event.preventDefault()
+      setPasscodeError(null)
+
+      if (!passcode || passcode.trim().length < 4) {
+        setPasscodeError('親パスコードは4文字以上で入力してください。')
+        return
+      }
+
+      if (passcodeMode === 'setup' && passcode !== confirmPasscode) {
+        setPasscodeError('確認用パスコードが一致しません。')
+        return
+      }
+
+      try {
+        setIsProcessingPasscode(true)
+        setIsSwitchingUserType(true)
+
+        if (passcodeMode === 'setup') {
+          await apiService.setParentPasscode(passcode)
+          await refreshUser()
+        }
+
+        await apiService.updateUserType('parent', passcode)
+        await refreshUser()
+
+    closeParentPasscodeModal()
+        setSuccess('親のアカウントに切り替えました。管理タブを表示するためページをリロードしています...')
+        setTimeout(() => window.location.reload(), 1000)
+      } catch (err) {
+        console.error('Failed to verify parent passcode:', err)
+        setPasscodeError(err instanceof Error ? err.message : '親パスコードの確認に失敗しました。')
+      } finally {
+        setIsProcessingPasscode(false)
+        setIsSwitchingUserType(false)
+      }
+    }
 
   if (isLoading) {
     return (
@@ -390,16 +441,16 @@ export default function HomePage() {
             <div className="role-switch-content">
               <h3>👨‍👩‍👧 親モードに切り替えますか？</h3>
               <p>
-                お手伝いやご褒美を追加するには親モードに切り替える必要があります。本人確認が完了したら、下のボタンを押してください。
+                お手伝いやご褒美を追加するには親モードに切り替える必要があります。保護者だけが知る親パスコードで本人確認を行ってください。
               </p>
             </div>
-            <button
-              className="role-switch-button"
-              onClick={handleSwitchToParent}
-              disabled={isSwitchingUserType}
-            >
-              {isSwitchingUserType ? '切り替え中...' : '親のアカウントに切り替え'}
-            </button>
+              <button
+                className="role-switch-button"
+                onClick={openParentPasscodeModal}
+                disabled={isSwitchingUserType}
+              >
+                {isSwitchingUserType ? '切り替え中...' : '親のアカウントに切り替え'}
+              </button>
           </div>
         )}
 
@@ -886,6 +937,73 @@ export default function HomePage() {
             </section>
           )}
         </main>
+
+        {isPasscodeModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h3 className="modal-title">
+                {passcodeMode === 'setup' ? '親パスコードを設定' : '親パスコードを入力'}
+              </h3>
+              <p className="modal-description">
+                {passcodeMode === 'setup'
+                  ? '親モードに切り替える前に、保護者だけが知っているパスコードを設定してください。'
+                  : '親モードに切り替えるために、設定済みの親パスコードを入力してください。'}
+              </p>
+              <form className="modal-form" onSubmit={handleParentPasscodeSubmit}>
+                <label className="modal-label">
+                  {passcodeMode === 'setup' ? '親パスコード' : '親パスコード'}
+                  <input
+                    type="password"
+                    value={passcode}
+                    onChange={(event) => setPasscode(event.target.value)}
+                    placeholder="4文字以上で入力"
+                    minLength={4}
+                    required
+                    autoFocus
+                  />
+                </label>
+
+                {passcodeMode === 'setup' && (
+                  <label className="modal-label">
+                    親パスコード（確認用）
+                    <input
+                      type="password"
+                      value={confirmPasscode}
+                      onChange={(event) => setConfirmPasscode(event.target.value)}
+                      placeholder="同じパスコードを再入力"
+                      minLength={4}
+                      required
+                    />
+                  </label>
+                )}
+
+                {passcodeError && <div className="modal-error">{passcodeError}</div>}
+
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="modal-button secondary"
+                    onClick={closeParentPasscodeModal}
+                    disabled={isProcessingPasscode}
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    type="submit"
+                    className="modal-button primary"
+                    disabled={isProcessingPasscode}
+                  >
+                    {isProcessingPasscode
+                      ? '処理中...'
+                      : passcodeMode === 'setup'
+                        ? 'パスコードを設定して切り替え'
+                        : '親モードに切り替え'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

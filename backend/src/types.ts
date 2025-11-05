@@ -2,6 +2,10 @@ export interface Env {
   DB: D1Database;
   JWT_SECRET: string;
   GOOGLE_CLIENT_ID: string;
+  ASSETS?: {
+    fetch: typeof fetch;
+  };
+  ENVIRONMENT?: string;
 }
 
 export interface User {
@@ -10,6 +14,7 @@ export interface User {
   email: string;
   name: string;
   user_type: 'parent' | 'child';
+  parent_passcode_hash?: string | null;
   created_at: string;
   updated_at: string;
 }

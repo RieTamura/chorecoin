@@ -26,3 +26,4 @@ database_id = "fdde4290-e389-472e-bd04-68bee2cd1dc7"
 [env.production.assets]
 directory = "../web/dist"
 binding = "ASSETS"
+not_found_handling = "single-page-application"

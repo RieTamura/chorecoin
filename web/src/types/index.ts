@@ -7,6 +7,7 @@ export interface User {
   userType: 'parent' | 'child'
   createdAt: string
   updatedAt: string
+  hasPasscode: boolean
 }
 
 export interface Chore {

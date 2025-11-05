@@ -10,6 +10,7 @@ interface DemoState {
   rewards: Reward[]
   history: HistoryEntry[]
   points: PointsData
+  parentPasscode?: string | null
 }
 
 const createId = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(16).slice(2)}`)
@@ -26,6 +27,7 @@ const createDefaultDemoState = (): DemoState => {
     userType: 'parent',
     createdAt: nowIso,
     updatedAt: nowIso,
+    hasPasscode: true,
   }
 
   const chores: Chore[] = [
@@ -109,7 +111,7 @@ const createDefaultDemoState = (): DemoState => {
     lastUpdated: nowIso,
   }
 
-  return { user, chores, rewards, history, points }
+  return { user, chores, rewards, history, points, parentPasscode: '1234' }
 }
 
 let cachedDemoState: DemoState | null = null
@@ -121,6 +123,7 @@ const saveDemoState = (state: DemoState) => {
 
 const ensureDemoState = (): DemoState => {
   if (cachedDemoState) {
+    cachedDemoState.user.hasPasscode = Boolean(cachedDemoState.parentPasscode)
     return cachedDemoState
   }
 
@@ -128,6 +131,7 @@ const ensureDemoState = (): DemoState => {
   if (stored) {
     try {
       cachedDemoState = JSON.parse(stored) as DemoState
+      cachedDemoState.user.hasPasscode = Boolean(cachedDemoState.parentPasscode)
       return cachedDemoState
     } catch (error) {
       console.warn('Demo state parse failed. Resetting demo data.', error)
@@ -142,6 +146,7 @@ const ensureDemoState = (): DemoState => {
 const updateDemoState = (mutator: (draft: DemoState) => void): DemoState => {
   const draft = JSON.parse(JSON.stringify(ensureDemoState())) as DemoState
   mutator(draft)
+  draft.user.hasPasscode = Boolean(draft.parentPasscode)
   saveDemoState(draft)
   return draft
 }
@@ -287,11 +292,19 @@ const apiService = {
     return response.data
   },
 
-  async updateUserType(userType: 'parent' | 'child'): Promise<User> {
+  async updateUserType(userType: 'parent' | 'child', passcode?: string): Promise<User> {
     if (isDemoAuthToken()) {
       let updatedUser: User | null = null
       const now = new Date().toISOString()
       updateDemoState((draft) => {
+        if (userType === 'parent' && draft.parentPasscode) {
+          if (!passcode) {
+            throw new Error('親パスコードを入力してください。')
+          }
+          if (passcode !== draft.parentPasscode) {
+            throw new Error('親パスコードが正しくありません。')
+          }
+        }
         draft.user.userType = userType
         draft.user.updatedAt = now
         updatedUser = { ...draft.user }
@@ -302,9 +315,37 @@ const apiService = {
       return updatedUser
     }
 
-    const response = await apiClient.patch<User>('/api/users/me', {
-      userType,
-    })
+    const payload: Record<string, unknown> = { userType }
+    if (passcode) {
+      payload.passcode = passcode
+    }
+
+    const response = await apiClient.patch<User>('/api/users/me', payload)
+    return response.data
+  },
+
+  async setParentPasscode(passcode: string, currentPasscode?: string): Promise<User> {
+    if (isDemoAuthToken()) {
+      let updatedUser: User | null = null
+      const now = new Date().toISOString()
+      updateDemoState((draft) => {
+        draft.parentPasscode = passcode
+        draft.user.hasPasscode = true
+        draft.user.updatedAt = now
+        updatedUser = { ...draft.user }
+      })
+      if (!updatedUser) {
+        throw new Error('親パスコードの更新に失敗しました。')
+      }
+      return updatedUser
+    }
+
+    const payload: Record<string, unknown> = { passcode }
+    if (currentPasscode) {
+      payload.currentPasscode = currentPasscode
+    }
+
+    const response = await apiClient.post<User>('/api/users/passcode', payload)
     return response.data
   },
 

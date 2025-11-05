@@ -31,7 +31,7 @@ app.route('/api/history', history);
 app.route('/api/users', users);
 
 // 404 handler for API
-app.notFound((c) => {
+app.notFound(async (c) => {
   // Check if it's an API request
   if (c.req.path.startsWith('/api/')) {
     const error = new AppError(
@@ -43,7 +43,13 @@ app.notFound((c) => {
     return c.json(response, 404);
   }
   
-  // For non-API routes, let static assets handle it
+  // For non-API routes, delegate to the static assets binding when available.
+  // not_found_handling="single-page-application" ensures index.html is returned
+  // so React Router can perform client-side routing.
+  if (c.env.ASSETS) {
+    return c.env.ASSETS.fetch(c.req.raw);
+  }
+
   return new Response('Not found', { status: 404 });
 });
 

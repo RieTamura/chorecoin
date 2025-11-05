@@ -43,6 +43,28 @@ export default function LoginPage() {
     setLoginError('Google認証に失敗しました。もう一度お試しください。')
   }
 
+  const handleAppleLogin = async () => {
+    try {
+      setIsLoggingIn(true)
+      setLoginError(null)
+      
+      // TODO: Apple Sign In の実装
+      // 1. AppleJSライブラリを読み込む
+      // 2. Apple ID認証フローを実行
+      // 3. IDトークンを取得
+      // 4. バックエンドに送信してログイン処理
+      
+      // 暫定実装: Apple認証はまだ未実装
+      setLoginError('Apple認証は現在開発中です。Googleでログインしてください。')
+    } catch (error) {
+      console.error('Apple login failed:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Apple認証に失敗しました。'
+      setLoginError(errorMessage)
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
+
   // デモテスト用: ダミーユーザーでログイン
   const handleDemoLogin = () => {
     try {
@@ -101,12 +123,7 @@ VITE_API_URL=http://localhost:8787`}</pre>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <div className="login-container">
         <div className="login-card">
-          <h1 className="login-title">🪙 Chore Coin</h1>
-          <p className="login-subtitle">お手伝いコイン</p>
-          <p className="login-description">
-            お手伝いをしてポイントを貯めよう！<br />
-            貯まったポイントでご褒美と交換できるよ✨
-          </p>
+          <h1 className="login-title">ログイン</h1>
 
           {loginError && (
             <div className="error-message">
@@ -114,29 +131,34 @@ VITE_API_URL=http://localhost:8787`}</pre>
             </div>
           )}
 
-          <div className="google-login-container">
-            {isLoggingIn ? (
-              <div className="loading-spinner">
-                <p>ログイン中...</p>
-              </div>
-            ) : (
-              <div className="google-login-wrapper">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  theme="filled_blue"
-                  size="medium"
-                  text="signin_with"
-                  logo_alignment="left"
-                  auto_select={false}
-                />
-              </div>
-            )}
+          {/* ソーシャルログイン */}
+          <div className="social-login-section">
+            <div className="social-buttons">
+              {isLoggingIn ? (
+                <div className="loading-spinner">
+                  <p>ログイン中...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="google-login-wrapper">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={handleGoogleError}
+                      size="large"
+                      text="signin"
+                      auto_select={false}
+                    />
+                  </div>
+                  <button className="social-button apple-button" disabled={isLoggingIn} onClick={handleAppleLogin}>
+                    <span>🍎 Apple</span>
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           {/* デモモードボタン */}
           <div className="demo-mode-section">
-            <p className="demo-mode-label">Google 認証がない場合：</p>
             <button 
               className="demo-button"
               onClick={handleDemoLogin}
@@ -145,10 +167,6 @@ VITE_API_URL=http://localhost:8787`}</pre>
               🧪 デモモードでテスト
             </button>
           </div>
-
-          <p className="login-footer">
-            Google アカウントでログインしてください。
-          </p>
         </div>
       </div>
     </GoogleOAuthProvider>

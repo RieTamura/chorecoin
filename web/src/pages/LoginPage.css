@@ -42,24 +42,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
 .google-login-wrapper {
-  display: flex;
-  justify-content: center;
+  display: block;
   width: 100%;
+  margin: 0 auto;
 }
 
 .google-login-wrapper > * {
-  display: flex !important;
-  justify-content: center !important;
-  width: 100%;
+  margin: 0 auto;
 }
 
 .google-login-container iframe {
-  display: block !important;
-  margin: 0 auto !important;
-  width: auto !important;
+  display: block;
+  margin: 0 auto;
+  width: auto;
 }
 
 .loading-spinner {

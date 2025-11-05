@@ -10,53 +10,11 @@ export default function LoginPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
 
-  // Keep Google Sign-In button centered even if GIS rerenders its markup.
   useEffect(() => {
     if (user && !isLoading) {
       navigate('/')
     }
   }, [user, isLoading, navigate])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    const container = document.querySelector('.google-login-container')
-    if (!container) {
-      return
-    }
-
-    const centerButton = () => {
-      Array.from(container.children).forEach((child) => {
-        if (child instanceof HTMLElement) {
-          child.style.display = 'flex'
-          child.style.justifyContent = 'center'
-          child.style.textAlign = 'center'
-          child.style.width = '100%'
-        }
-      })
-
-      container.querySelectorAll<HTMLElement>('.g_id_signin, .gsi-material-button').forEach((node) => {
-        node.style.display = 'flex'
-        node.style.justifyContent = 'center'
-        node.style.width = '100%'
-      })
-
-      const iframe = container.querySelector<HTMLIFrameElement>('iframe')
-      if (iframe) {
-        iframe.style.margin = '0 auto'
-        iframe.style.display = 'block'
-      }
-    }
-
-    centerButton()
-
-    const observer = new MutationObserver(centerButton)
-    observer.observe(container, { childList: true, attributes: true, subtree: true })
-
-    return () => observer.disconnect()
-  }, [])
 
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     try {
@@ -168,11 +126,9 @@ VITE_API_URL=http://localhost:8787`}</pre>
                   onError={handleGoogleError}
                   theme="filled_blue"
                   size="medium"
-                  shape="rectangular"
                   text="signin_with"
                   logo_alignment="left"
                   auto_select={false}
-                  context="signin"
                 />
               </div>
             )}

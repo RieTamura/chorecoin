@@ -63,7 +63,7 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>🪙 Chore Coin</Text>
-        <Text style={styles.subtitle}>お手伝いコイン</Text>
+  <Text style={styles.subtitle}>やることコイン</Text>
         <Text style={styles.description}>
           お手伝いをしてポイントを貯めよう！{'\n'}
           貯まったポイントでご褒美と交換できるよ✨

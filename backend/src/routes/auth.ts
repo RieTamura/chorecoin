@@ -78,6 +78,7 @@ auth.post('/google', async (c) => {
         ...existingUser,
         name: googlePayload.name,
         email: googlePayload.email,
+        updated_at: new Date().toISOString(),
       };
     } else {
       // Create new user

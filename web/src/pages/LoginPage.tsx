@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google'
 import { useAuth } from '../contexts/AuthContext'
@@ -9,12 +9,49 @@ export default function LoginPage() {
   const { user, isLoading, login, demoLogin } = useAuth()
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
+  const googleButtonRef = useRef<HTMLButtonElement | null>(null)
+  const hiddenGoogleButtonWrapperRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (user && !isLoading) {
       navigate('/')
     }
   }, [user, isLoading, navigate])
+
+  useEffect(() => {
+    const wrapper = hiddenGoogleButtonWrapperRef.current
+    if (!wrapper) {
+      return
+    }
+
+    const assignButtonRef = () => {
+      const button = wrapper.querySelector('button')
+      if (button instanceof HTMLButtonElement) {
+        googleButtonRef.current = button
+        return true
+      }
+      return false
+    }
+
+    if (assignButtonRef()) {
+      return () => {
+        googleButtonRef.current = null
+      }
+    }
+
+    const observer = new MutationObserver(() => {
+      if (assignButtonRef()) {
+        observer.disconnect()
+      }
+    })
+
+    observer.observe(wrapper, { childList: true, subtree: true })
+
+    return () => {
+      observer.disconnect()
+      googleButtonRef.current = null
+    }
+  }, [])
 
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     try {
@@ -128,8 +165,7 @@ VITE_API_URL=http://localhost:8787`}</pre>
                   className="logo-button google-button" 
                   disabled={isLoggingIn} 
                   onClick={() => {
-                    const googleButton = document.querySelector('.hidden-google-wrapper button')
-                    if (googleButton) (googleButton as HTMLButtonElement).click()
+                    googleButtonRef.current?.click()
                   }}
                   title="Google でログイン"
                   aria-label="Google でログイン"
@@ -143,7 +179,11 @@ VITE_API_URL=http://localhost:8787`}</pre>
                 </button>
               )}
             </div>
-            <div className="hidden-google-wrapper" style={{ display: 'none' }}>
+            <div
+              className="hidden-google-wrapper"
+              style={{ display: 'none' }}
+              ref={hiddenGoogleButtonWrapperRef}
+            >
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}

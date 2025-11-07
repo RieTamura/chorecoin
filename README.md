@@ -69,7 +69,21 @@ npm run dev
 
 詳細は [backend/README.md](backend/README.md) を参照してください。
 
-### 2. フロントエンドのセットアップ
+### 2. Webフロントエンドのセットアップ
+
+```bash
+cd web
+npm install
+
+# .env.localを作成
+cp .env.example .env.local
+# VITE_API_URL と VITE_GOOGLE_CLIENT_ID を設定
+
+# 開発サーバーの起動
+npm run dev
+```
+
+### 3. モバイルアプリのセットアップ（今後実装予定）
 
 ```bash
 cd frontend
@@ -139,14 +153,45 @@ npm start
 
 ## 🧪 開発
 
+### バックエンド開発（Hono CLI使用）
+
+```bash
+cd backend
+
+# 健全性チェック
+npm run request:health
+
+# 統合テストの実行
+npm run test:integration
+
+# すべてのテストの実行
+npm test -- --run
+
+# 型チェック
+npm run type-check
+```
+
+詳細は [backend/AGENTS.md](backend/AGENTS.md) を参照してください。
+
 ### バックエンドのデプロイ
 
 ```bash
 cd backend
+npm run type-check
+npm test -- --run
+npm run test:integration
 npm run deploy
 ```
 
-### フロントエンドのビルド（EAS Build）
+### Webフロントエンドのビルド
+
+```bash
+cd web
+npm run build
+npm run preview
+```
+
+### モバイルアプリのビルド（EAS Build）
 
 ```bash
 cd frontend
@@ -154,12 +199,30 @@ npx eas build --platform ios
 npx eas build --platform android
 ```
 
+## 🚀 Hono CLI について
+
+本プロジェクトは**Hono CLI**を導入しており、以下の機能を提供しています：
+
+- **`hono request`** - サーバー起動なしでAPIをテスト
+- **統合テスト** - すべてのエンドポイントをカバー
+- **CI/CDパイプライン** - GitHub Actions自動テスト
+- **AI開発対応** - Claude等のAIエージェント対応
+
+詳細は [HONO_CLI_IMPLEMENTATION.md](HONO_CLI_IMPLEMENTATION.md) を参照してください。
+
 ## 🔒 セキュリティ
 
 - Google IDトークンの署名検証
 - JWT認証
 - CORS設定
 - プリペアドステートメント（SQLインジェクション対策）
+
+## 📚 ドキュメント
+
+- [HONO_CLI_IMPLEMENTATION.md](HONO_CLI_IMPLEMENTATION.md) - Hono CLI統合ガイド
+- [backend/AGENTS.md](backend/AGENTS.md) - AI開発者向けワークフロー
+- [backend/README.md](backend/README.md) - バックエンド詳細
+- [web/README.md](web/README.md) - Webフロントエンド詳細
 
 ## 📄 ライセンス
 

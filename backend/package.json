@@ -5,14 +5,21 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
-  "deploy": "wrangler deploy --env production",
+    "deploy": "wrangler deploy --env production",
     "db:create": "wrangler d1 create chorecoin-db",
     "db:migrate": "wrangler d1 migrations apply chorecoin-db --local",
-  "db:migrate:prod": "wrangler d1 migrations apply chorecoin-db-prod --env production --remote",
+    "db:migrate:prod": "wrangler d1 migrations apply chorecoin-db-prod --env production --remote",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "request:health": "hono request -P / src/index.ts",
+    "request:chores": "hono request -P /api/chores src/index.ts",
+    "request:chores:create": "hono request -P /api/chores -X POST -d '{\"title\":\"Test Chore\",\"points\":10}' src/index.ts",
+    "request:rewards": "hono request -P /api/rewards src/index.ts",
+    "request:users": "hono request -P /api/users/me src/index.ts",
+    "test:all": "npm run type-check && npm run test && npm run request:health && npm run request:chores",
+    "test:integration": "node scripts/test-api.js"
   },
   "keywords": [
     "hono",
@@ -27,6 +34,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240117.0",
+    "@hono/cli": "^0.1.0",
     "@types/node": "^20.10.0",
     "@vitest/coverage-v8": "^1.1.0",
     "@vitest/expect": "^1.6.1",

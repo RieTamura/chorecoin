@@ -54,7 +54,32 @@ const tests = [
   },
 ];
 
+const parseResponse = (rawOutput) => {
+  const trimmed = rawOutput.trim();
+
+  if (!trimmed) {
+    return { status: undefined, payload: trimmed, isJson: false };
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    const derivedStatus =
+      typeof parsed.status === "number"
+        ? parsed.status
+        : typeof parsed.statusCode === "number"
+          ? parsed.statusCode
+          : undefined;
+
+    return { status: derivedStatus, payload: parsed, isJson: true };
+  } catch {
+    const statusMatch = trimmed.match(/status(?:Code)?\s*[:=]\s*(\d{3})/i);
+    const status = statusMatch ? Number(statusMatch[1]) : undefined;
+    return { status, payload: trimmed, isJson: false };
+  }
+};
+
 let passedTests = 0;
+
 let failedTests = 0;
 
 console.log(
@@ -76,21 +101,29 @@ tests.forEach((test, index) => {
       });
     } catch (error) {
       // hono request may output to stderr even on success
-      output = error.stdout || error.stderr || error.message;
+
+      const combinedOutput = [error.stdout, error.stderr]
+        .filter(Boolean)
+        .join("\n");
+      output = combinedOutput || error.message;
     }
 
-    // Parse JSON response
-    const response = JSON.parse(output.trim());
-    const status = response.status;
+    const parsed = parseResponse(output);
+    const status = parsed.status;
 
     if (status === test.expectedStatus) {
       console.log(`${colors.green}✓ PASS${colors.reset} (Status: ${status})\n`);
       passedTests++;
     } else {
       console.log(
-        `${colors.red}✗ FAIL${colors.reset} (Expected: ${test.expectedStatus}, Got: ${status})\n`,
+        `${colors.red}✗ FAIL${colors.reset} (Expected: ${test.expectedStatus}, Got: ${status ?? "unknown"})\n`,
       );
-      console.log(`Response: ${JSON.stringify(response, null, 2)}\n`);
+
+      const formattedPayload = parsed.isJson
+        ? JSON.stringify(parsed.payload, null, 2)
+        : parsed.payload;
+      console.log(`Response: ${formattedPayload}\n`);
+
       failedTests++;
     }
   } catch (error) {
